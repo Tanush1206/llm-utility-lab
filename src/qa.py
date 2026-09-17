@@ -1,23 +1,14 @@
 from src.client import generate_response
-
-SYSTEM_PROMPT = """
-You area context-aware question answering assistant.
-
-Answer the user's question using ONLY the provided content.
-
-Rules:
-- Do not use information that is not present in the context.
-- Do not make up facts or details.
-- If the answer cannot be found in the context, clearly say:
-    "The answer cannot be determined from the provided context."
-- Keep the answer concise and directly answer the question.
-"""
-
+from src.models import LLMResponse
+from src.prompts import(
+    QA_SYSTEM_PROMPT,
+    build_qa_prompt
+)
 
 def answer_question(
         context: str,
         question: str,
-) -> str:
+) -> LLMResponse:
     """
     Answer a question using only the provided context.
 
@@ -35,17 +26,12 @@ def answer_question(
     if not question.strip():
         raise ValueError("Question cannot be empty.")
 
-    prompt = f"""
+    prompt = build_qa_prompt(
+        context=context,
+        question=question,
+    )
 
-{SYSTEM_PROMPT}
-
-Context:
-{context}
-
-Question:
-{question}
-
-Answer:
-"""
-
-    return generate_response(prompt)
+    return generate_response(
+        prompt=prompt,
+        instructions=QA_SYSTEM_PROMPT
+    )

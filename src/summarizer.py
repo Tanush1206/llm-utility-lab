@@ -1,17 +1,15 @@
 from src.client import generate_response
+from src.models import LLMResponse
+from src.prompts import(
+    SUMMARIZER_SYSTEM_PROMPT,
+    build_summary_prompt
+)
 
-SYSTEM_PROMPT = """
-You are a professional text summarization assistant.
-
-Summarize the provided text accurately and concisely.
-Preserve the key facts, important details, and main ideas.
-Do not add information that is not present in the source text
-"""
 
 def summarize_text(
         text: str,
         max_sentences: int = 3,
-) -> str:
+) -> LLMResponse:
     """
     Summarize the given text using an LLM.
 
@@ -26,13 +24,15 @@ def summarize_text(
     if not text.strip():
         raise ValueError("Text to summarize cannot be empty.")
 
-    prompt=f"""
-{SYSTEM_PROMPT}
+    if max_sentences <1 :
+        raise ValueError("max_sentences must be at least 1.")
 
-Return a summary of no more than {max_sentences} sentences.
+    prompt = build_summary_prompt(
+        text=text,
+        max_sentences=max_sentences
+    )
 
-Text to summarize:
-{text}
-"""
-
-    return generate_response(prompt)
+    return generate_response(
+        prompt = prompt,
+        instructions=SUMMARIZER_SYSTEM_PROMPT,
+    )

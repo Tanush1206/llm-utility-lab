@@ -16,7 +16,13 @@ def main():
             try:
                 summary = summarize_text(text)
                 print("\n--- Summary ---")
-                print(summary)
+                print(summary.text)
+
+                print("\n---Usage---")
+                print(f"Input tokens:, {summary.usage.input_tokens}")
+                print(f"Output tokens:, {summary.usage.output_tokens}")
+                print(f"Total tokens:, {summary.usage.total_tokens}")
+
             except (ValueError, RuntimeError) as error:
                 print(f"\nError: {error}")
 
@@ -27,7 +33,12 @@ def main():
             try:
                 answer = answer_question(context, question)
                 print("\n--- Answer ---")
-                print(answer)
+                print(answer.text)
+
+                print("\n---Usage---")
+                print(f"Input tokens:, {answer.usage.input_tokens}")
+                print(f"Output tokens:, {answer.usage.output_tokens}")
+                print(f"Total tokens:, {answer.usage.total_tokens}")
             except (ValueError, RuntimeError) as error:
                 print(f"\nError: {error}")
 
