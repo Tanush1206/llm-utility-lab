@@ -9,6 +9,13 @@ class EvaluationResult:
     actual: str
     reason: str
 
+@dataclass
+class EvaluationCase:
+    """A single evaluation case."""
+
+    name:str
+    actual: str
+    expected: str
 
 def evaluate_contains(
     actual: str,
@@ -34,3 +41,20 @@ def evaluate_contains(
         actual=actual,
         reason=reason
     )
+
+
+def run_evaluation(
+        cases: list[EvaluationCase],
+) -> list[EvaluationResult]:
+    """Run all evaluation cases and return their results."""
+
+    results=[]
+
+    for case in cases:
+        result = evaluate_contains(
+            actual=case.actual,
+            expected=case.expected,
+        )
+
+        results.append(result)
+    return results

@@ -1,4 +1,5 @@
 from src.evaluation import evaluate_contains
+from src.evaluation import EvaluationCase, run_evaluation
 
 def test_evaluation_passes_expected_text_is_present():
     result = evaluate_contains(
@@ -24,3 +25,41 @@ def test_evaluation_is_case_insensitive():
     )
 
     assert result.passed is True
+
+def test_run_evaluation_passes_all_cases():
+    cases = [
+        EvaluationCase(
+            name="Founded year",
+            actual="The company was founded in 2018.",
+            expected="2018",
+        ),
+        EvaluationCase(
+            name="Product",
+            actual="The company developes cloud-based accounting software.",
+            expected="cloud-based accounting software",
+        ),
+    ]
+
+    results = run_evaluation(cases)
+
+    assert len(results) == 2
+    assert all(result.passed for result in results)
+
+def test_run_evaluation_detects_failed_case():
+    cases = [
+        EvaluationCase(
+            name="Incorrect year",
+            actual="The company was founded in 2020.",
+            expected="2018",
+        )
+    ]
+
+    results = run_evaluation(cases)
+
+    assert len(results) == 1
+    assert results[0].passed is False
+
+def run_evaluation_handles_empty_cases():
+    results = run_evaluation([])
+
+    assert results == []
