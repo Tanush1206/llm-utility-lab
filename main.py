@@ -1,6 +1,24 @@
 from src.qa import answer_question
 from src.summarizer import summarize_text
 
+def read_multiline_input(prompt: str) -> str:
+    """Read milti-line input until the user enters a blank line."""
+
+    print(prompt)
+    print("(Press Enter on an empty line to finish.)")
+
+    lines=[]
+
+    while True:
+        line = input()
+
+        if not line:
+            break
+
+        lines.append(line)
+
+    return "\n".join(lines).strip()
+
 def main():
     while True:
         print("\n=== LLM Utility Lab ===")
@@ -11,7 +29,7 @@ def main():
         choice = input("\nChoose an option: ").strip()
 
         if choice == "1":
-            text = input("\nEnter text to summarize:\n").strip()
+            text = read_multiline_input("\nEnter text to summarize:")
 
             try:
                 summary = summarize_text(text)
@@ -19,16 +37,16 @@ def main():
                 print(summary.text)
 
                 print("\n---Usage---")
-                print(f"Input tokens:, {summary.usage.input_tokens}")
-                print(f"Output tokens:, {summary.usage.output_tokens}")
-                print(f"Total tokens:, {summary.usage.total_tokens}")
+                print(f"Input tokens: {summary.usage.input_tokens}")
+                print(f"Output tokens: {summary.usage.output_tokens}")
+                print(f"Total tokens: {summary.usage.total_tokens}")
 
             except (ValueError, RuntimeError) as error:
                 print(f"\nError: {error}")
 
         elif choice == "2":
-            context = input("\nEnter context:\n").strip()
-            question = input("\nEnter your question:\n").strip()
+            context = read_multiline_input("\nEnter context:\n")
+            question = read_multiline_input("\nEnter your question:\n")
 
             try:
                 answer = answer_question(context, question)
@@ -36,9 +54,9 @@ def main():
                 print(answer.text)
 
                 print("\n---Usage---")
-                print(f"Input tokens:, {answer.usage.input_tokens}")
-                print(f"Output tokens:, {answer.usage.output_tokens}")
-                print(f"Total tokens:, {answer.usage.total_tokens}")
+                print(f"Input tokens: {answer.usage.input_tokens}")
+                print(f"Output tokens: {answer.usage.output_tokens}")
+                print(f"Total tokens: {answer.usage.total_tokens}")
             except (ValueError, RuntimeError) as error:
                 print(f"\nError: {error}")
 
@@ -47,7 +65,7 @@ def main():
             break
 
         else:
-            print("\nInvalid choice. Please select 1,2, or 3.")
+            print("\nInvalid choice. Please select 1, 2, or 3.")
 
 if __name__ == "__main__":
     main()
