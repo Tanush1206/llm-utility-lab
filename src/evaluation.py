@@ -71,7 +71,44 @@ def evaluate_contains(
         reason=reason
     )
 
+def validate_evaluation_cases(cases: list[dict]) -> None:
+    """Validate the structure of evaluation cases."""
+    required_fields = {
+        "name",
+        "context",
+        "question",
+        "expected"
+    }
 
+    if not isinstance(cases, list) :
+        raise ValueError("Evaluation cases must be provided as a list.")
+
+    for index, case in enumerate(cases, start = 1):
+        if not isinstance(case, dict) :
+            raise ValueError(
+                "Evaluation cases {index} must be an object."
+            )
+
+        missing_fields = required_fields - case.keys()
+
+        if missing_fields:
+            missing = ", ".join(sorted(missing_fields))
+
+            raise ValueError(
+                f"Evaluation case {index} is missing required field(s): {missing}"
+            )
+
+        for field in required_fields:
+            value = case[field]
+
+            if not isinstance(value, str) :
+                raise ValueError(f"Evaluation cases {index} field '{field}' must be a string.")
+
+            if not value.strip():
+                raise ValueError(
+                    f"Evaluation case {index} field '{field}' cannot be empty."
+                )
+            
 def run_evaluation(
         cases: list[EvaluationCase],
 ) -> list[EvaluationResult]:
