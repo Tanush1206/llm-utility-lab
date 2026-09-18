@@ -6,7 +6,7 @@ class EvaluationResult:
     """Result of evaluating a model response."""
 
     passed: bool
-    excepted: str
+    expected: str
     actual: str
     reason: str
 
@@ -14,7 +14,7 @@ class EvaluationResult:
 class EvaluationCase:
     """A single evaluation case."""
 
-    name:str
+    name: str
     actual: str
     expected: str
 
@@ -23,9 +23,17 @@ def normalize_text(text: str) -> str:
 
     text = unicodedata.normalize("NFKC" , text)
 
-    text = text.replace("-", "-")
-    text = text.replace("–", "-")
-    text = text.replace("—", "-")
+    hyphens = {
+        "\u2010": "-",
+        "\u2011": "-",
+        "\u2012": "-",
+        "\u2013": "-",
+        "\u2014": "-",
+        "\u2212": "-",
+    }
+
+    for source, replacement in hyphens.items():
+        text = text.replace(source, replacement)
 
     return " ".join(text.strip().lower().split())
 
@@ -49,7 +57,7 @@ def evaluate_contains(
 
     return EvaluationResult(
         passed=passed,
-        excepted=expected,
+        expected=expected,
         actual=actual,
         reason=reason
     )

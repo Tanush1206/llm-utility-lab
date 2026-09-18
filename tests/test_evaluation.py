@@ -72,7 +72,7 @@ def test_run_evaluation_handles_empty_cases():
 
 def test_evaluation_handles_unicode_hyphens():
     result = evaluate_contains(
-        actual="The company develops cloud-based accounting software.",
+        actual="The company develops cloud\u2011based accounting software.",
         expected="cloud-based accounting software",
     )
 
