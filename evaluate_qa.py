@@ -1,5 +1,6 @@
-from src.evaluation import EvaluationCase, run_evaluation
+from src.evaluation import EvaluationCase, run_evaluation, summarize_evaluation
 from src.qa import answer_question
+
 
 EVALUATION_CASES = [
     {
@@ -52,8 +53,7 @@ def main():
 
     results = run_evaluation(evaluation_inputs)
 
-    passed_counts = sum(result.passed for result in results)
-    total_cases = len(results)
+    summary = summarize_evaluation(results)
 
     for case, result in zip(EVALUATION_CASES, results):
         status = "✓" if result.passed else "✗"
@@ -64,11 +64,10 @@ def main():
             print(f"   Expected: {result.expected}")
             print(f"   Actual:   {result.actual}")
 
-    score = (passed_counts / total_cases) * 100 if total_cases else 0
 
     print("\n--------------------------")
-    print(f"Passed: {passed_counts}/{total_cases}")
-    print(f"Score: {score:.0f}%")
+    print(f"Passed: {summary.passed_cases}/{summary.total_cases}")
+    print(f"Score: {summary.score:.0f}%")
     print(f"Total tokens: {total_tokens}")
 
 
