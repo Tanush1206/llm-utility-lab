@@ -218,6 +218,8 @@ def test_save_evaluation_report(tmp_path):
     report = EvaluationReport(
         summary=summary,
         total_tokens=100,
+        model="openai/gpt-oss-20b",
+        temperature=0.1,
         results=results
     )
 

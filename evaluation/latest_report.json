@@ -5,7 +5,9 @@
     "failed_cases": 0,
     "score": 100.0
   },
-  "total_tokens": 746,
+  "total_tokens": 758,
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.1,
   "results": [
     {
       "case_name": "Direct factual answer",

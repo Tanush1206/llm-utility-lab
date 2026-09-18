@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from src.client import get_default_model, get_default_temperature
 
 from src.evaluation import (
     EvaluationCase,
@@ -10,14 +11,12 @@ from src.evaluation import (
 )
 from src.qa import answer_question
 
+
 def load_evaluation_cases() -> list[dict]:
     """Load evaluation cases from the JSON file."""
 
     cases_path = Path(__file__).parent / "evaluation" / "qa_cases.json"
-    with cases_path.open(
-        "r",
-        encoding="utf-8"
-    ) as file:
+    with cases_path.open("r", encoding="utf-8") as file:
         cases = json.load(file)
 
         validate_evaluation_cases(cases)
@@ -26,9 +25,9 @@ def load_evaluation_cases() -> list[dict]:
 
 
 def save_evaluation_report(
-        report: EvaluationReport,
-        report_path: Path | None = None,
-    ) -> None:
+    report: EvaluationReport,
+    report_path: Path | None = None,
+) -> None:
     """Save the evaluation report as a JSON file."""
 
     if report_path is None:
@@ -41,29 +40,23 @@ def save_evaluation_report(
             "failed_cases": report.summary.failed_cases,
             "score": report.summary.score,
         },
-        "total_tokens" : report.total_tokens,
+        "total_tokens": report.total_tokens,
+        "model": report.model,
+        "temperature": report.temperature,
         "results": [
             {
                 "case_name": result.case_name,
-                "passed" : result.passed,
-                "expected" : result.expected,
-                "actual" : result.actual,
-                "reason" : result.reason,
-
+                "passed": result.passed,
+                "expected": result.expected,
+                "actual": result.actual,
+                "reason": result.reason,
             }
             for result in report.results
-        ]
+        ],
     }
 
-    with report_path.open(
-        "w",
-        encoding = "utf-8"
-    ) as file:
-        json.dump(
-            report_data,
-            file,
-            indent=2
-        )
+    with report_path.open("w", encoding="utf-8") as file:
+        json.dump(report_data, file, indent=2)
 
 
 def main():
@@ -95,7 +88,9 @@ def main():
     report = EvaluationReport(
         summary=summary,
         total_tokens=total_tokens,
-        results=results
+        model=get_default_model(),
+        temperature=get_default_temperature(),
+        results=results,
     )
 
     save_evaluation_report(report)

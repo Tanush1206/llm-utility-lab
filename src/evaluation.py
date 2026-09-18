@@ -34,6 +34,8 @@ class EvaluationReport:
 
     summary: EvaluationSummary
     total_tokens: int
+    model: str
+    temperature: float
     results: list[EvaluationResult]
 
 def normalize_text(text: str) -> str:
