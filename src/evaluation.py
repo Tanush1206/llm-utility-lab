@@ -5,6 +5,7 @@ import unicodedata
 class EvaluationResult:
     """Result of evaluating a model response."""
 
+    case_name: str
     passed: bool
     expected: str
     actual: str
@@ -55,6 +56,7 @@ def normalize_text(text: str) -> str:
     return " ".join(text.strip().lower().split())
 
 def evaluate_contains(
+    case_name: str,
     actual: str,
     expected: str,
 )-> EvaluationResult:
@@ -73,6 +75,7 @@ def evaluate_contains(
         reason = "Expected text was not found in the model response."
 
     return EvaluationResult(
+        case_name=case_name,
         passed=passed,
         expected=expected,
         actual=actual,
@@ -118,7 +121,7 @@ def validate_evaluation_cases(cases: list[dict]) -> None:
                 )
 
 def run_evaluation(
-        cases: list[EvaluationCase],
+    cases: list[EvaluationCase],
 ) -> list[EvaluationResult]:
     """Run all evaluation cases and return their results."""
 
@@ -126,6 +129,7 @@ def run_evaluation(
 
     for case in cases:
         result = evaluate_contains(
+            case_name=case.name,
             actual=case.actual,
             expected=case.expected,
         )

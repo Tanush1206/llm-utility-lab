@@ -1,7 +1,14 @@
 import json
-from src.evaluation import EvaluationCase, EvaluationReport, run_evaluation, summarize_evaluation, validate_evaluation_cases
-from src.qa import answer_question
 from pathlib import Path
+
+from src.evaluation import (
+    EvaluationCase,
+    EvaluationReport,
+    run_evaluation,
+    summarize_evaluation,
+    validate_evaluation_cases,
+)
+from src.qa import answer_question
 
 def load_evaluation_cases() -> list[dict]:
     """Load evaluation cases from the JSON file."""

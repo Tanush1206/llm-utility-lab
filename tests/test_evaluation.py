@@ -11,6 +11,7 @@ from evaluate_qa import load_evaluation_cases, validate_evaluation_cases, save_e
 
 def test_evaluation_passes_expected_text_is_present():
     result = evaluate_contains(
+        case_name="Founded year",
         actual="The company was founded in 2018.",
         expected="2018",
     )
@@ -20,6 +21,7 @@ def test_evaluation_passes_expected_text_is_present():
 
 def test_evaluation_fails_when_expected_text_is_missing():
     result = evaluate_contains(
+        case_name="Incorrect year",
         actual="The company was founded in 2020.",
         expected="2018",
     )
@@ -29,6 +31,7 @@ def test_evaluation_fails_when_expected_text_is_missing():
 
 def test_evaluation_is_case_insensitive():
     result = evaluate_contains(
+        case_name="Case insensitive",
         actual="The company develops Cloud-Based Accounting Software.",
         expected="cloud-based accounting software",
     )
@@ -79,6 +82,7 @@ def test_run_evaluation_handles_empty_cases():
 
 def test_evaluation_handles_unicode_hyphens():
     result = evaluate_contains(
+        case_name="Unicode hyphen",
         actual="The company develops cloud\u2011based accounting software.",
         expected="cloud-based accounting software",
     )
@@ -89,18 +93,21 @@ def test_evaluation_handles_unicode_hyphens():
 def test_summarize_evaluation_calculates_metrics():
     results = [
         EvaluationResult(
+            case_name="Founded year",
             passed=True,
             expected="2018",
             actual="The company was founded in 2018.",
             reason="Expected text was found in the model response.",
         ),
         EvaluationResult(
+            case_name="Product",
             passed=True,
             expected="software",
             actual="The company develops software.",
             reason="Expected text was found in the model response.",
         ),
         EvaluationResult(
+            case_name="Incorrect location",
             passed=False,
             expected="India",
             actual="The company is based in Germany",
@@ -198,6 +205,7 @@ def test_validate_evaluation_cases_rejects_empty_field():
 def test_save_evaluation_report(tmp_path):
     results = [
         EvaluationResult(
+            case_name="Founded year",
             passed=True,
             expected="2018",
             actual="2018",
