@@ -27,6 +27,13 @@ class EvaluationSummary:
     failed_cases: int
     score: float
 
+@dataclass
+class EvaluationReport:
+    """Complete evaluation report."""
+
+    summary: EvaluationSummary
+    total_tokens: int
+
 def normalize_text(text: str) -> str:
     """Normalize text for reliable evaluation comparisons."""
 
@@ -108,7 +115,7 @@ def validate_evaluation_cases(cases: list[dict]) -> None:
                 raise ValueError(
                     f"Evaluation case {index} field '{field}' cannot be empty."
                 )
-            
+
 def run_evaluation(
         cases: list[EvaluationCase],
 ) -> list[EvaluationResult]:

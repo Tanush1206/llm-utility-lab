@@ -1,5 +1,5 @@
 import json
-from src.evaluation import EvaluationCase, run_evaluation, summarize_evaluation, validate_evaluation_cases
+from src.evaluation import EvaluationCase, EvaluationReport, run_evaluation, summarize_evaluation, validate_evaluation_cases
 from src.qa import answer_question
 from pathlib import Path
 
@@ -16,6 +16,30 @@ def load_evaluation_cases() -> list[dict]:
         validate_evaluation_cases(cases)
 
         return cases
+
+
+def save_evaluation_report(report: EvaluationReport) -> None:
+    """Save the evaluation report as a JSON file."""
+
+    report_path = Path(__file__).parent / "evaluation" / "latest_report.json"
+
+    report_data = {
+        "total_cases": report.summary.total_cases,
+        "passed_cases": report.summary.passed_cases,
+        "failed_cases": report.summary.failed_cases,
+        "score": report.summary.score,
+        "total_tokens": report.total_tokens,
+    }
+
+    with report_path.open(
+        "w",
+        encoding = "utf-8"
+    ) as file:
+        json.dump(
+            report_data,
+            file,
+            indent=2
+        )
 
 
 def main():
@@ -43,6 +67,13 @@ def main():
     results = run_evaluation(evaluation_inputs)
 
     summary = summarize_evaluation(results)
+
+    report = EvaluationReport(
+        summary=summary,
+        total_tokens=total_tokens,
+    )
+
+    save_evaluation_report(report)
 
     for case, result in zip(evaluation_cases, results):
         status = "✓" if result.passed else "✗"
