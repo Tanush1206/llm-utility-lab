@@ -1,7 +1,17 @@
 {
-  "total_cases": 3,
-  "passed_cases": 3,
-  "failed_cases": 0,
-  "score": 100.0,
-  "total_tokens": 756
+  "summary": {
+    "total_cases": 1,
+    "passed_cases": 1,
+    "failed_cases": 0,
+    "score": 100.0
+  },
+  "total_tokens": 100,
+  "results": [
+    {
+      "passed": true,
+      "expected": "2018",
+      "actual": "2018",
+      "reason": "Expected text was found in the model response"
+    }
+  ]
 }

@@ -33,6 +33,7 @@ class EvaluationReport:
 
     summary: EvaluationSummary
     total_tokens: int
+    results: list[EvaluationResult]
 
 def normalize_text(text: str) -> str:
     """Normalize text for reliable evaluation comparisons."""

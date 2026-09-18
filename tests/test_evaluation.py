@@ -1,11 +1,12 @@
 from src.evaluation import (
     EvaluationCase,
     EvaluationResult,
+    EvaluationReport,
     evaluate_contains,
     run_evaluation,
     summarize_evaluation,
 )
-from evaluate_qa import load_evaluation_cases, validate_evaluation_cases
+from evaluate_qa import load_evaluation_cases, validate_evaluation_cases, save_evaluation_report
 
 
 def test_evaluation_passes_expected_text_is_present():
@@ -192,3 +193,26 @@ def test_validate_evaluation_cases_rejects_empty_field():
         assert False, "Expected ValueError for empty field"
     except ValueError as error:
         assert "cannot be empty" in str(error)
+
+
+def test_save_evaluation_report(tmp_path):
+    results = [
+        EvaluationResult(
+            passed=True,
+            expected="2018",
+            actual="2018",
+            reason="Expected text was found in the model response",
+        )
+    ]
+
+    summary = summarize_evaluation(results)
+
+    report = EvaluationReport(
+        summary=summary,
+        total_tokens=100,
+        results=results
+    )
+
+    report_path = tmp_path / "report.json"
+
+    save_evaluation_report(report, report_path)

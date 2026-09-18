@@ -18,17 +18,32 @@ def load_evaluation_cases() -> list[dict]:
         return cases
 
 
-def save_evaluation_report(report: EvaluationReport) -> None:
+def save_evaluation_report(
+        report: EvaluationReport,
+        report_path: Path | None = None,
+    ) -> None:
     """Save the evaluation report as a JSON file."""
 
     report_path = Path(__file__).parent / "evaluation" / "latest_report.json"
 
     report_data = {
-        "total_cases": report.summary.total_cases,
-        "passed_cases": report.summary.passed_cases,
-        "failed_cases": report.summary.failed_cases,
-        "score": report.summary.score,
-        "total_tokens": report.total_tokens,
+        "summary": {
+            "total_cases": report.summary.total_cases,
+            "passed_cases": report.summary.passed_cases,
+            "failed_cases": report.summary.failed_cases,
+            "score": report.summary.score,
+        },
+        "total_tokens" : report.total_tokens,
+        "results": [
+            {
+                "passed" : result.passed,
+                "expected" : result.expected,
+                "actual" : result.actual,
+                "reason" : result.reason,
+
+            }
+            for result in report.results
+        ]
     }
 
     with report_path.open(
@@ -71,6 +86,7 @@ def main():
     report = EvaluationReport(
         summary=summary,
         total_tokens=total_tokens,
+        results=results
     )
 
     save_evaluation_report(report)
