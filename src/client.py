@@ -24,7 +24,7 @@ def get_default_temperature() -> float:
     )
 
     try:
-        return float(raw_temperature)
+        temperature = float(raw_temperature)
     except ValueError as error:
         raise ValueError(
             "GROQ_TEMPERATURE must be a valid number."
