@@ -1,6 +1,12 @@
-from src.evaluation import evaluate_contains
-from src.evaluation import EvaluationCase, EvaluationResult, evaluate_contains, run_evaluation, summarize_evaluation
+from src.evaluation import (
+    EvaluationCase,
+    EvaluationResult,
+    evaluate_contains,
+    run_evaluation,
+    summarize_evaluation,
+)
 from evaluate_qa import load_evaluation_cases, validate_evaluation_cases
+
 
 def test_evaluation_passes_expected_text_is_present():
     result = evaluate_contains(
@@ -85,19 +91,19 @@ def test_summarize_evaluation_calculates_metrics():
             passed=True,
             expected="2018",
             actual="The company was founded in 2018.",
-            reason="Expected text was found in the model response."
+            reason="Expected text was found in the model response.",
         ),
         EvaluationResult(
             passed=True,
             expected="software",
             actual="The company develops software.",
-            reason="Expected text was found in the model response."
+            reason="Expected text was found in the model response.",
         ),
         EvaluationResult(
             passed=False,
             expected="India",
             actual="The company is based in Germany",
-            reason="Expected text was found in the model response."
+            reason="Expected text was found in the model response.",
         ),
     ]
 
@@ -117,24 +123,26 @@ def test_load_evaluation_cases():
     assert cases[0]["question"] == "When was the company founded?"
     assert cases[0]["expected"] == "2018"
 
+
 def test_validate_evaluation_cases_accepts_valid_cases():
     cases = [
         {
-            "name" : "Test case",
-            "context" : "Some context.",
-            "question" : "Some question?",
-            "expected" : "Some answer",
+            "name": "Test case",
+            "context": "Some context.",
+            "question": "Some question?",
+            "expected": "Some answer",
         }
     ]
 
     validate_evaluation_cases(cases)
 
+
 def test_validate_evaluation_cases_rejects_missing_fields():
     cases = [
         {
-            "name" : "Test case",
-            "context" : "Some context.",
-            "question" : "Some question?",
+            "name": "Test case",
+            "context": "Some context.",
+            "question": "Some question?",
         }
     ]
 
@@ -144,3 +152,43 @@ def test_validate_evaluation_cases_rejects_missing_fields():
     except ValueError as error:
         assert "expected" in str(error)
 
+
+def test_validate_evaluation_cases_rejects_non_list():
+    try:
+        validate_evaluation_cases({"name": "Invalid"})
+        assert False, "Expected ValueError for non-list input"
+    except ValueError as error:
+        assert "must be provided as a list" in str(error)
+
+
+def test_validate_evaluation_cases_rejects_non_string_field():
+    cases = [
+        {
+            "name": "Test case",
+            "context": "Some context.",
+            "question": "Some question?",
+            "expected": 2018,
+        }
+    ]
+
+    try:
+        validate_evaluation_cases(cases)
+        assert False, "Expected ValueError for non-string field"
+    except ValueError as error:
+        assert "must be a string" in str(error)
+
+def test_validate_evaluation_cases_rejects_empty_field():
+    cases = [
+        {
+            "name": "Test case",
+            "context": "Some context.",
+            "question": "",
+            "expected": "Some answer",
+        }
+    ]
+
+    try:
+        validate_evaluation_cases(cases)
+        assert False, "Expected ValueError for empty field"
+    except ValueError as error:
+        assert "cannot be empty" in str(error)

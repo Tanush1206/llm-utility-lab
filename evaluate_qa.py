@@ -30,7 +30,7 @@ def validate_evaluation_cases(cases: list[dict]) -> None:
         raise ValueError("Evaluation cases must be provided as a list.")
 
     for index, case in enumerate(cases, start = 1):
-        if not isinstance(cases, list) :
+        if not isinstance(case, dict) :
             raise ValueError(
                 "Evaluation cases {index} must be an object."
             )
@@ -47,12 +47,13 @@ def validate_evaluation_cases(cases: list[dict]) -> None:
         for field in required_fields:
             value = case[field]
 
-            if not isinstance(cases, list) :
-                raise ValueError("Evaluation cases {index} field '{field}' must bea string.")
+            if not isinstance(value, str) :
+                raise ValueError(f"Evaluation cases {index} field '{field}' must be a string.")
 
-            if not value.strip(): raise ValueError(
-                f"Evaluation case {index} field '{field}' cannot be empty"
-            )
+            if not value.strip():
+                raise ValueError(
+                    f"Evaluation case {index} field '{field}' cannot be empty."
+                )
 
 def main():
     print("\n=== Q&A Evaluation ===\n")
