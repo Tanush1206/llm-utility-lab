@@ -37,6 +37,7 @@ class EvaluationReport:
     model: str
     temperature: float
     run_at: str
+    prompt_version: str
     results: list[EvaluationResult]
 
 def normalize_text(text: str) -> str:

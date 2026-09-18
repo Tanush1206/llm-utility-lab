@@ -1,3 +1,6 @@
+SUMMARIZER_PROMPT_VERSION = "summarizer-v1"
+QA_PROMPT_VERSION = "qa-v1"
+
 SUMMARIZER_SYSTEM_PROMPT = """
 You are a professional text summarization assistant.
 
@@ -25,7 +28,6 @@ Rules:
     "The answer cannot be determined from the provided context."
 - Keep the answer concise and directly answer the question.
 """
-
 
 def build_summary_prompt(
     text: str,

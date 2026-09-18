@@ -220,7 +220,8 @@ def test_save_evaluation_report(tmp_path):
         total_tokens=100,
         model="openai/gpt-oss-20b",
         temperature=0.1,
-         run_at="2026-09-18T19:00:00+05:30",
+        run_at="2026-09-18T19:00:00+05:30",
+        prompt_version="qa-v1",
         results=results
     )
 

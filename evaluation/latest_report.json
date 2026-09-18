@@ -5,10 +5,11 @@
     "failed_cases": 0,
     "score": 100.0
   },
-  "total_tokens": 758,
+  "total_tokens": 756,
   "model": "openai/gpt-oss-20b",
   "temperature": 0.1,
-  "run_at": "2026-09-18T13:58:04.026571+00:00",
+  "run_at": "2026-09-18T14:13:05.958077+00:00",
+  "prompt_version": "qa-v1",
   "results": [
     {
       "case_name": "Direct factual answer",

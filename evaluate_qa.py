@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from src.client import get_default_model, get_default_temperature
 from datetime import datetime, timezone
+from src.prompts import QA_PROMPT_VERSION
 
 from src.evaluation import (
     EvaluationCase,
@@ -45,6 +46,7 @@ def save_evaluation_report(
         "model": report.model,
         "temperature": report.temperature,
         "run_at": report.run_at,
+        "prompt_version": report.prompt_version,
         "results": [
             {
                 "case_name": result.case_name,
@@ -93,6 +95,7 @@ def main():
         model=get_default_model(),
         temperature=get_default_temperature(),
         run_at=datetime.now(timezone.utc).isoformat(),
+        prompt_version=QA_PROMPT_VERSION,
         results=results,
     )
 
