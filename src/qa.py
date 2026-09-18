@@ -33,5 +33,6 @@ def answer_question(
 
     return generate_response(
         prompt=prompt,
-        instructions=QA_SYSTEM_PROMPT
+        instructions=QA_SYSTEM_PROMPT,
+        temperature=0.1
     )

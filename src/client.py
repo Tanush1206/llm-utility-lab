@@ -22,6 +22,7 @@ def generate_response(
     prompt: str,
     instructions: str = "",
     model: str = "openai/gpt-oss-20b",
+    temperature: float | None = None,
 ) -> LLMResponse:
     """Generate a text response using the Groq Response API."""
 
@@ -35,6 +36,9 @@ def generate_response(
             "model": model,
             "input": prompt,
         }
+
+        if temperature is not None:
+            request_args["temperature"] = temperature
 
         if instructions.strip():
             request_args["instructions"] = instructions

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import unicodedata
 
 @dataclass
 class EvaluationResult:
@@ -17,6 +18,17 @@ class EvaluationCase:
     actual: str
     expected: str
 
+def normalize_text(text: str) -> str:
+    """Normalize text for reliable evaluation comparisons."""
+
+    text = unicodedata.normalize("NFKC" , text)
+
+    text = text.replace("-", "-")
+    text = text.replace("–", "-")
+    text = text.replace("—", "-")
+
+    return " ".join(text.strip().lower().split())
+
 def evaluate_contains(
     actual: str,
     expected: str,
@@ -25,8 +37,8 @@ def evaluate_contains(
     Check whether the model response contains the expected text.
     """
 
-    normalized_actual = actual.strip().lower()
-    normalized_expected= expected.strip().lower()
+    normalized_actual = normalize_text(actual)
+    normalized_expected = normalize_text(expected)
 
     passed = normalized_expected in normalized_actual
 

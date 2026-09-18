@@ -1,6 +1,7 @@
 from src.evaluation import evaluate_contains
 from src.evaluation import EvaluationCase, run_evaluation
 
+
 def test_evaluation_passes_expected_text_is_present():
     result = evaluate_contains(
         actual="The company was founded in 2018.",
@@ -18,6 +19,7 @@ def test_evaluation_fails_when_expected_text_is_missing():
 
     assert result.passed is False
 
+
 def test_evaluation_is_case_insensitive():
     result = evaluate_contains(
         actual="The company develops Cloud-Based Accounting Software.",
@@ -25,6 +27,7 @@ def test_evaluation_is_case_insensitive():
     )
 
     assert result.passed is True
+
 
 def test_run_evaluation_passes_all_cases():
     cases = [
@@ -45,6 +48,7 @@ def test_run_evaluation_passes_all_cases():
     assert len(results) == 2
     assert all(result.passed for result in results)
 
+
 def test_run_evaluation_detects_failed_case():
     cases = [
         EvaluationCase(
@@ -59,7 +63,17 @@ def test_run_evaluation_detects_failed_case():
     assert len(results) == 1
     assert results[0].passed is False
 
-def run_evaluation_handles_empty_cases():
+
+def test_run_evaluation_handles_empty_cases():
     results = run_evaluation([])
 
     assert results == []
+
+
+def test_evaluation_handles_unicode_hyphens():
+    result = evaluate_contains(
+        actual="The company develops cloud-based accounting software.",
+        expected="cloud-based accounting software",
+    )
+
+    assert result.passed is True
