@@ -31,7 +31,8 @@ def save_evaluation_report(
     ) -> None:
     """Save the evaluation report as a JSON file."""
 
-    report_path = Path(__file__).parent / "evaluation" / "latest_report.json"
+    if report_path is None:
+        report_path = Path(__file__).parent / "evaluation" / "latest_report.json"
 
     report_data = {
         "summary": {
@@ -43,6 +44,7 @@ def save_evaluation_report(
         "total_tokens" : report.total_tokens,
         "results": [
             {
+                "case_name": result.case_name,
                 "passed" : result.passed,
                 "expected" : result.expected,
                 "actual" : result.actual,
