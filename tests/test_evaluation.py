@@ -1,6 +1,6 @@
 from src.evaluation import evaluate_contains
 from src.evaluation import EvaluationCase, EvaluationResult, evaluate_contains, run_evaluation, summarize_evaluation
-from evaluate_qa import load_evaluation_cases
+from evaluate_qa import load_evaluation_cases, validate_evaluation_cases
 
 def test_evaluation_passes_expected_text_is_present():
     result = evaluate_contains(
@@ -116,3 +116,31 @@ def test_load_evaluation_cases():
     assert cases[0]["name"] == "Direct factual answer"
     assert cases[0]["question"] == "When was the company founded?"
     assert cases[0]["expected"] == "2018"
+
+def test_validate_evaluation_cases_accepts_valid_cases():
+    cases = [
+        {
+            "name" : "Test case",
+            "context" : "Some context.",
+            "question" : "Some question?",
+            "expected" : "Some answer",
+        }
+    ]
+
+    validate_evaluation_cases(cases)
+
+def test_validate_evaluation_cases_rejects_missing_fields():
+    cases = [
+        {
+            "name" : "Test case",
+            "context" : "Some context.",
+            "question" : "Some question?",
+        }
+    ]
+
+    try:
+        validate_evaluation_cases(cases)
+        assert False, "Expected ValueError for missing field"
+    except ValueError as error:
+        assert "expected" in str(error)
+

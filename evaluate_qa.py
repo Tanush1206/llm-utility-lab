@@ -11,8 +11,30 @@ def load_evaluation_cases() -> list[dict]:
         "r",
         encoding="utf-8"
     ) as file:
-        return json.load(file)
+        cases = json.load(file)
 
+        validate_evaluation_cases(cases)
+
+        return cases
+
+def validate_evaluation_cases(cases: list[dict]) -> None:
+    """Validate the structure of evaluation cases."""
+    required_fields = {
+        "name",
+        "context",
+        "question",
+        "expected"
+    }
+
+    for index, case in enumerate(cases, start = 1):
+        missing_fields = required_fields - case.keys()
+
+        if missing_fields:
+            missing = ", ".join(sorted(missing_fields))
+
+            raise ValueError(
+                f"Evaluation case {index} is missing required field(s): {missing}"
+            )
 
 def main():
     print("\n=== Q&A Evaluation ===\n")
