@@ -1,43 +1,27 @@
+import json
 from src.evaluation import EvaluationCase, run_evaluation, summarize_evaluation
 from src.qa import answer_question
 
+def load_evaluation_cases() -> list[dict]:
+    """Load evaluation cases from the JSON file."""
 
-EVALUATION_CASES = [
-    {
-        "name": "Direct factual answer",
-        "context": (
-            "The company was founded in 2018 and develops "
-            "cloud-based accounting software."
-        ),
-        "question": "When was the company founded?",
-        "expected": "2018",
-    },
-    {
-        "name": "Context-grounded answer",
-        "context": (
-            "The company was founded in 2018 and develops "
-            "cloud-based accounting software."
-        ),
-        "question": "What does the company develop?",
-        "expected": "cloud-based accounting software",
-    },
-    {
-        "name": "Missing information",
-        "context": ("The company develops cloud-based accounting software."),
-        "question": "Who is the CEO of the company?",
-        "expected": "cannot be determined",
-    },
-]
+    with open(
+        "evaluation/qa_cases.json",
+        "r",
+        encoding="utf-8"
+    ) as file:
+        return json.load(file)
 
 
 def main():
     print("\n=== Q&A Evaluation ===\n")
 
-    evaluation_inputs = []
+    evaluation_cases = load_evaluation_cases()
 
+    evaluation_inputs = []
     total_tokens = 0
 
-    for case in EVALUATION_CASES:
+    for case in evaluation_cases:
         response = answer_question(
             context=case["context"],
             question=case["question"],
@@ -55,7 +39,7 @@ def main():
 
     summary = summarize_evaluation(results)
 
-    for case, result in zip(EVALUATION_CASES, results):
+    for case, result in zip(evaluation_cases, results):
         status = "✓" if result.passed else "✗"
 
         print(f"{status} {case['name']}")
@@ -63,7 +47,6 @@ def main():
         if not result.passed:
             print(f"   Expected: {result.expected}")
             print(f"   Actual:   {result.actual}")
-
 
     print("\n--------------------------")
     print(f"Passed: {summary.passed_cases}/{summary.total_cases}")
