@@ -7,6 +7,29 @@ from src.models import LLMResponse, TokenUsage
 load_dotenv()
 
 
+def get_default_model() -> str:
+    """Return the configured default LLM model."""
+
+    return os.getenv(
+        "GROQ_MODEL",
+        "openai/gpt-oss-20b"
+    )
+
+def get_default_temperature() -> float:
+    """Return the configured default temperature."""
+
+    raw_temperature = os.getenv(
+        "GROQ_TEMPERATURE",
+        "0.1"
+    )
+
+    try:
+        return float(raw_temperature)
+    except ValueError as error:
+        raise ValueError(
+            "GROQ_TEMPERATURE must be a valid number."
+        ) from error
+
 def get_llm_client() -> OpenAI:
     """Create and return an OpenAI-compatible Groq client."""
 
@@ -21,7 +44,7 @@ def get_llm_client() -> OpenAI:
 def generate_response(
     prompt: str,
     instructions: str = "",
-    model: str = "openai/gpt-oss-20b",
+    model: str | None = None,
     temperature: float | None = None,
 ) -> LLMResponse:
     """Generate a text response using the Groq Response API."""
@@ -33,12 +56,16 @@ def generate_response(
 
     try:
         request_args = {
-            "model": model,
+            "model": model or get_default_model(),
             "input": prompt,
         }
 
-        if temperature is not None:
-            request_args["temperature"] = temperature
+        configured_temperature = (
+            temperature
+            if temperature is not None
+            else get_default_temperature()
+        )
+        request_args["temperature"] = configured_temperature
 
         if instructions.strip():
             request_args["instructions"] = instructions
