@@ -1,5 +1,5 @@
 from src.evaluation import evaluate_contains
-from src.evaluation import EvaluationCase, run_evaluation
+from src.evaluation import EvaluationCase, EvaluationResult, evaluate_contains, run_evaluation, summarize_evaluation
 
 
 def test_evaluation_passes_expected_text_is_present():
@@ -77,3 +77,35 @@ def test_evaluation_handles_unicode_hyphens():
     )
 
     assert result.passed is True
+
+
+def test_summarize_evaluation_calculates_metrics():
+    results = [
+        EvaluationResult(
+            passed=True,
+            expected="2018",
+            actual="The company was founded in 2018.",
+            reason="Expected text was found in the model response."
+        ),
+        EvaluationResult(
+            passed=True,
+            expected="software",
+            actual="The company develops software.",
+            reason="Expected text was found in the model response."
+        ),
+        EvaluationResult(
+            passed=False,
+            expected="India",
+            actual="The company is based in Germany",
+            reason="Expected text was found in the model response."
+        ),
+    ]
+
+    summary = summarize_evaluation(results)
+
+    assert summary.total_cases == 3
+    assert summary.passed_cases == 2
+    assert summary.failed_cases == 1
+    assert summary.score == 66.66666666666666
+
+

@@ -18,6 +18,15 @@ class EvaluationCase:
     actual: str
     expected: str
 
+@dataclass
+class EvaluationSummary:
+    """Aggregate results from an evaluation run."""
+
+    total_cases: int
+    passed_cases: int
+    failed_cases: int
+    score: float
+
 def normalize_text(text: str) -> str:
     """Normalize text for reliable evaluation comparisons."""
 
@@ -78,3 +87,26 @@ def run_evaluation(
 
         results.append(result)
     return results
+
+
+def summarize_evaluation(
+        results: list[EvaluationResult],
+) -> EvaluationSummary:
+    """Create aggregate metrics from evaluation results."""
+
+    total_cases = len(results)
+    passed_cases = sum(result.passed for result in results)
+    failed_cases = total_cases - passed_cases
+
+    score = (
+        (passed_cases / total_cases) * 100
+        if total_cases
+        else 0.0
+    )
+
+    return EvaluationSummary(
+        total_cases=total_cases,
+        passed_cases=passed_cases,
+        failed_cases=failed_cases,
+        score=score
+    )
