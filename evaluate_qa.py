@@ -3,7 +3,7 @@ from src.qa import answer_question
 
 EVALUATION_CASES = [
     {
-        "name" : "Direct factual answer",
+        "name": "Direct factual answer",
         "context": (
             "The company was founded in 2018 and develops "
             "cloud-based accounting software."
@@ -12,23 +12,22 @@ EVALUATION_CASES = [
         "expected": "2018",
     },
     {
-        "name" : "Context-grounded answer",
+        "name": "Context-grounded answer",
         "context": (
             "The company was founded in 2018 and develops "
             "cloud-based accounting software."
         ),
-        "question": "When does the company develop?",
+        "question": "What does the company develop?",
         "expected": "cloud-based accounting software",
     },
     {
-        "name" : "Missing information",
-        "context": (
-            "The company develops cloud-based accounting software."
-        ),
+        "name": "Missing information",
+        "context": ("The company develops cloud-based accounting software."),
         "question": "Who is the CEO of the company?",
         "expected": "cannot be determined",
-    }
+    },
 ]
+
 
 def main():
     print("\n=== Q&A Evaluation ===\n")
@@ -47,9 +46,7 @@ def main():
 
         evaluation_inputs.append(
             EvaluationCase(
-                name=case["name"],
-                actual=response.text,
-                expected=case["expected"]
+                name=case["name"], actual=response.text, expected=case["expected"]
             )
         )
 
@@ -64,7 +61,7 @@ def main():
         print(f"{status} {case['name']}")
 
         if not result.passed:
-            print(f"   Expected: {result.excepted}")
+            print(f"   Expected: {result.expected}")
             print(f"   Actual:   {result.actual}")
 
     score = (passed_counts / total_cases) * 100 if total_cases else 0
@@ -74,6 +71,6 @@ def main():
     print(f"Score: {score:.0f}%")
     print(f"Total tokens: {total_tokens}")
 
+
 if __name__ == "__main__":
     main()
-
