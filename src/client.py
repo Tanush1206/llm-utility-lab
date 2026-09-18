@@ -30,6 +30,12 @@ def get_default_temperature() -> float:
             "GROQ_TEMPERATURE must be a valid number."
         ) from error
 
+    if not 0 <= temperature <= 2:
+        raise ValueError(
+            "GROQ_TEMPERATURE must be between 0 and 2."
+        )
+    return temperature
+
 def get_llm_client() -> OpenAI:
     """Create and return an OpenAI-compatible Groq client."""
 
