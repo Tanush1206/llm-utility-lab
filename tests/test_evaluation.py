@@ -1,6 +1,6 @@
 from src.evaluation import evaluate_contains
 from src.evaluation import EvaluationCase, EvaluationResult, evaluate_contains, run_evaluation, summarize_evaluation
-
+from evaluate_qa import load_evaluation_cases
 
 def test_evaluation_passes_expected_text_is_present():
     result = evaluate_contains(
@@ -109,3 +109,10 @@ def test_summarize_evaluation_calculates_metrics():
     assert summary.score == 66.66666666666666
 
 
+def test_load_evaluation_cases():
+    cases = load_evaluation_cases()
+
+    assert len(cases) == 3
+    assert cases[0]["name"] == "Direct factual answer"
+    assert cases[0]["question"] == "When was the company founded?"
+    assert cases[0]["expected"] == "2018"

@@ -1,12 +1,13 @@
 import json
 from src.evaluation import EvaluationCase, run_evaluation, summarize_evaluation
 from src.qa import answer_question
+from pathlib import Path
 
 def load_evaluation_cases() -> list[dict]:
     """Load evaluation cases from the JSON file."""
 
-    with open(
-        "evaluation/qa_cases.json",
+    cases_path = Path(__file__).parent / "evaluation" / "qa_cases.json"
+    with cases_path.open(
         "r",
         encoding="utf-8"
     ) as file:
