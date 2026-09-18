@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from src.client import get_default_model, get_default_temperature
+from datetime import datetime, timezone
 
 from src.evaluation import (
     EvaluationCase,
@@ -43,6 +44,7 @@ def save_evaluation_report(
         "total_tokens": report.total_tokens,
         "model": report.model,
         "temperature": report.temperature,
+        "run_at": report.run_at,
         "results": [
             {
                 "case_name": result.case_name,
@@ -90,6 +92,7 @@ def main():
         total_tokens=total_tokens,
         model=get_default_model(),
         temperature=get_default_temperature(),
+        run_at=datetime.now(timezone.utc).isoformat(),
         results=results,
     )
 
