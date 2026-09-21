@@ -228,3 +228,12 @@ def test_save_evaluation_report(tmp_path):
     report_path = tmp_path / "report.json"
 
     save_evaluation_report(report, report_path)
+
+    history_filename = (
+            f"report_{report.run_at.replace(':', '').replace('+00.00', 'Z')}.json"
+        )
+
+    history_path = tmp_path / "history" / history_filename
+
+    assert report_path.exists()
+    assert history_path.exists()
