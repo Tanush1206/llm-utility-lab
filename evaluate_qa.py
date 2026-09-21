@@ -35,6 +35,9 @@ def save_evaluation_report(
     if report_path is None:
         report_path = Path(__file__).parent / "evaluation" / "latest_report.json"
 
+    history_dir = report_path.parent / "history"
+    history_dir.mkdir(parents=True, exist_ok=True)
+
     report_data = {
         "summary": {
             "total_cases": report.summary.total_cases,
@@ -60,6 +63,15 @@ def save_evaluation_report(
     }
 
     with report_path.open("w", encoding="utf-8") as file:
+        json.dump(report_data, file, indent=2)
+
+    history_filename = (
+        f"report_{report.run_at.replace(':', '').replace('+00.00', 'Z')}.json"
+    )
+
+    history_path = history_dir / history_filename
+
+    with history_path.open("w", encoding="utf-8") as file:
         json.dump(report_data, file, indent=2)
 
 
