@@ -7,6 +7,8 @@ from src.prompts import QA_PROMPT_VERSION
 from src.evaluation import (
     EvaluationCase,
     EvaluationReport,
+    EvaluationSummary,
+    compare_evaluation_runs,
     run_evaluation,
     summarize_evaluation,
     validate_evaluation_cases,
@@ -24,6 +26,40 @@ def load_evaluation_cases() -> list[dict]:
         validate_evaluation_cases(cases)
 
         return cases
+
+
+def load_previous_evaluation_report(
+    history_dir: Path,
+) -> EvaluationReport | None:
+    """Load the most recent historical evaluation report."""
+
+    history_files = sorted(
+        history_dir.glob("report_*.json"),
+        reverse=True,
+    )
+
+    if not history_files:
+        return None
+
+    with history_files[0].open("r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    summary = data["summary"]
+
+    return EvaluationReport(
+        summary=EvaluationSummary(
+            total_cases=summary["total_cases"],
+            passed_cases=summary["passed_cases"],
+            failed_cases=summary["failed_cases"],
+            score=summary["score"],
+        ),
+        total_tokens=data["total_tokens"],
+        model=data["model"],
+        temperature=data["temperature"],
+        run_at=data["run_at"],
+        prompt_version=data["prompt_version"],
+        results=[],
+    )
 
 
 def save_evaluation_report(
@@ -110,6 +146,19 @@ def main():
         prompt_version=QA_PROMPT_VERSION,
         results=results,
     )
+
+    history_dir = Path(__file__).parent / "evaluation" / "history"
+
+    previous_report = load_previous_evaluation_report(history_dir)
+
+    if previous_report:
+        comparison = compare_evaluation_runs(previous=previous_report, current=report)
+
+        print("\n=== Evaluation Comparison ===")
+        print(f"Score change: {comparison.score_change:+.2f}%")
+        print(f"Token change: {comparison.token_change:+d}")
+        print(f"Passed cases change: {comparison.passed_cases_change:+d}")
+        print(f"Failed cases change: {comparison.failed_cases_change:+d}")
 
     save_evaluation_report(report)
 
