@@ -2,9 +2,11 @@ from src.evaluation import (
     EvaluationCase,
     EvaluationResult,
     EvaluationReport,
+    EvaluationSummary,
     evaluate_contains,
     run_evaluation,
     summarize_evaluation,
+    compare_evaluation_runs
 )
 from evaluate_qa import load_evaluation_cases, validate_evaluation_cases, save_evaluation_report
 
@@ -237,3 +239,45 @@ def test_save_evaluation_report(tmp_path):
 
     assert report_path.exists()
     assert history_path.exists()
+
+
+def test_compare_evaluation_runs():
+    previous = EvaluationReport(
+        summary=EvaluationSummary(
+            total_cases=3,
+            passed_cases=2,
+            failed_cases=1,
+            score=66.67
+        ),
+        total_tokens=800,
+        model="openai/gpt-oss-20b",
+        temperature=0.1,
+        run_at="2026-09-20T12:00:00+00:00",
+        prompt_version="qa-v1",
+        results=[]
+    )
+
+    current = EvaluationReport(
+        summary=EvaluationSummary(
+            total_cases=3,
+            passed_cases=3,
+            failed_cases=0,
+            score=100.0
+        ),
+        total_tokens=758,
+        model="openai/gpt-oss-20b",
+        temperature=0.1,
+        run_at="2026-09-21T12:00:00+00:00",
+        prompt_version="qa-v1",
+        results=[]
+    )
+
+    comparison = compare_evaluation_runs(
+        previous = previous,
+        current = current
+    )
+
+    assert comparison.score_change == 33.33
+    assert comparison.token_change == -42
+    assert comparison.passed_cases_change == 1
+    assert comparison.failed_cases_change == -1

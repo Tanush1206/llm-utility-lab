@@ -40,6 +40,15 @@ class EvaluationReport:
     prompt_version: str
     results: list[EvaluationResult]
 
+@dataclass
+class EvaluationComparison():
+    """Comparison between two evaluation runs."""
+
+    score_change: float
+    token_change: int
+    passed_cases_change: int
+    failed_cases_change: int
+
 def normalize_text(text: str) -> str:
     """Normalize text for reliable evaluation comparisons."""
 
@@ -141,6 +150,24 @@ def run_evaluation(
         results.append(result)
     return results
 
+def compare_evaluation_runs(
+    previous: EvaluationReport,
+    current: EvaluationReport,
+) -> EvaluationComparison:
+    """Compare two evaluation runs."""
+
+    return EvaluationComparison(
+        score_change=current.summary.score - previous.summary.score,
+        token_change=current.total_tokens - previous.total_tokens,
+        passed_cases_change=(
+            current.summary.passed_cases
+            - previous.summary.passed_cases
+        ),
+        failed_cases_change=(
+            current.summary.failed_cases
+            - previous.summary.failed_cases
+        ),
+    )
 
 def summarize_evaluation(
         results: list[EvaluationResult],
