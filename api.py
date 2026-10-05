@@ -1,13 +1,21 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from src.qa import answer_question
 from src.summarizer import summarize_text
-
 
 app = FastAPI(
     title="LLM Utility Lab API",
     version="1.0.0",
 )
+
+
+@app.exception_handler(RuntimeError)
+async def runtime_error_handler(request: Request, error: RuntimeError):
+    return JSONResponse(
+        status_code=502,
+        content={"detail": str(error)},
+    )
 
 
 class SummarizeRequest(BaseModel):
@@ -25,6 +33,7 @@ class SummarizeResponse(BaseModel):
     summary: str
     usage: TokenUsageResponse
 
+
 class AskRequest(BaseModel):
     context: str = Field(min_length=1)
     question: str = Field(min_length=1)
@@ -33,6 +42,7 @@ class AskRequest(BaseModel):
 class AskResponse(BaseModel):
     answer: str
     usage: TokenUsageResponse
+
 
 @app.get("/health")
 def health_check():
@@ -45,16 +55,10 @@ def health_check():
 def summarize(request: SummarizeRequest):
     """Summarize the provided text."""
 
-    try:
-        response = summarize_text(
-            text=request.text,
-            max_sentences=request.max_sentences,
-        )
-    except RuntimeError as error:
-        raise HTTPException(
-            status_code=502,
-            detail=str(error),
-        ) from error
+    response = summarize_text(
+        text=request.text,
+        max_sentences=request.max_sentences,
+    )
 
     return SummarizeResponse(
         summary=response.text,
@@ -65,20 +69,15 @@ def summarize(request: SummarizeRequest):
         ),
     )
 
+
 @app.post("/ask", response_model=AskResponse)
 def ask_question(request: AskRequest):
     """Answer a question using the provided context."""
 
-    try:
-        response = answer_question(
-            context=request.context,
-            question=request.question,
-        )
-    except RuntimeError as error:
-        raise HTTPException(
-            status_code=502,
-            detail=str(error),
-        ) from error
+    response = answer_question(
+        context=request.context,
+        question=request.question,
+    )
 
     return AskResponse(
         answer=response.text,
@@ -88,4 +87,3 @@ def ask_question(request: AskRequest):
             total_tokens=response.usage.total_tokens,
         ),
     )
-

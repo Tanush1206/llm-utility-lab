@@ -154,3 +154,22 @@ def test_ask_handles_llm_error(monkeypatch):
     assert response.json() == {
         "detail": "Groq server error. Please try again later."
     }
+
+def test_runtime_error_handler_returns_502(monkeypatch):
+    def raise_error(text, max_sentences):
+        raise RuntimeError("Something went wrong.")
+
+    monkeypatch.setattr("api.summarize_text", raise_error)
+
+    response = client.post(
+        "/summarize",
+        json={
+            "text": "Some text.",
+            "max_sentences": 1,
+        },
+    )
+
+    assert response.status_code == 502
+    assert response.json() == {
+        "detail": "Something went wrong."
+    }
