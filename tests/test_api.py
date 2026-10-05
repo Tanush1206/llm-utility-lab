@@ -4,8 +4,7 @@ from api import app
 from src.models import LLMResponse, TokenUsage
 
 
-client = TestClient(app)
-
+client = TestClient(app, raise_server_exceptions=False)
 
 def test_health_check():
     response = client.get("/health")

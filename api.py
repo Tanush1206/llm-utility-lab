@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
@@ -9,14 +10,36 @@ app = FastAPI(
     version="1.0.0",
 )
 
+logger = logging.getLogger("llm_utility_lab.api")
+
 
 @app.exception_handler(RuntimeError)
 async def runtime_error_handler(request: Request, error: RuntimeError):
+    logger.error(
+        "LLM API error | method=%s | path=%s | error_type=%s",
+        request.method,
+        request.url.path,
+        type(error).__name__,
+    )
+
     return JSONResponse(
         status_code=502,
         content={"detail": str(error)},
     )
 
+
+@app.exception_handler(Exception)
+async def unexpected_error_handler(request: Request, error: Exception):
+    logger.exception(
+        "Unexpected API error | method=%s | path=%s",
+        request.method,
+        request.url.path,
+    )
+
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error."},
+    )
 
 class SummarizeRequest(BaseModel):
     text: str = Field(min_length=1)
