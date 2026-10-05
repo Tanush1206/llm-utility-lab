@@ -1,6 +1,13 @@
 # 🚀 LLM Utility Lab
 
-> A modular LLM-powered utility application for text summarization and context-aware question answering.
+> A production-oriented LLM utility API for text summarization and context-aware question answering.
+
+[![CI](https://github.com/Tanush1206/llm-utility-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/Tanush1206/llm-utility-lab/actions/workflows/ci.yml)
+[![Live API](https://img.shields.io/badge/Live%20API-Render-46E3B7)](https://llm-utility-lab.onrender.com)
+[![Swagger Docs](https://img.shields.io/badge/Swagger-API%20Docs-85EA2D)](https://llm-utility-lab.onrender.com/docs)
+
+**Live API:** https://llm-utility-lab.onrender.com  
+**API Documentation:** https://llm-utility-lab.onrender.com/docs
 
 LLM Utility Lab is a Python-based project that provides reusable LLM utilities for **text summarization** and **context-aware question answering**.
 
