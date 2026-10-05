@@ -1,50 +1,34 @@
-import os
+from openai import APIConnectionError, APIStatusError, OpenAI
 
-from dotenv import load_dotenv
-from openai import OpenAI, APIConnectionError, APIStatusError
+from src.config import (
+    get_groq_api_key,
+    get_groq_model,
+    get_groq_temperature,
+)
 from src.models import LLMResponse, TokenUsage
-
-load_dotenv()
 
 
 def get_default_model() -> str:
     """Return the configured default LLM model."""
 
-    return os.getenv(
-        "GROQ_MODEL",
-        "openai/gpt-oss-20b"
-    )
+    return get_groq_model()
+
 
 def get_default_temperature() -> float:
     """Return the configured default temperature."""
 
-    raw_temperature = os.getenv(
-        "GROQ_TEMPERATURE",
-        "0.1"
-    )
+    return get_groq_temperature()
 
-    try:
-        temperature = float(raw_temperature)
-    except ValueError as error:
-        raise ValueError(
-            "GROQ_TEMPERATURE must be a valid number."
-        ) from error
-
-    if not 0 <= temperature <= 2:
-        raise ValueError(
-            "GROQ_TEMPERATURE must be between 0 and 2."
-        )
-    return temperature
 
 def get_llm_client() -> OpenAI:
     """Create and return an OpenAI-compatible Groq client."""
 
-    api_key = os.getenv("GROQ_API_KEY")
+    api_key = get_groq_api_key()
 
-    if not api_key:
-        raise ValueError("GROQ_API_KEY is not set." "Add it to your .env file.")
-
-    return OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
+    return OpenAI(
+        api_key=api_key,
+        base_url="https://api.groq.com/openai/v1",
+    )
 
 
 def generate_response(
@@ -71,6 +55,7 @@ def generate_response(
             if temperature is not None
             else get_default_temperature()
         )
+
         request_args["temperature"] = configured_temperature
 
         if instructions.strip():
@@ -89,7 +74,10 @@ def generate_response(
             total_tokens=response.usage.total_tokens,
         )
 
-        return LLMResponse(text=output.strip(), usage=usage)
+        return LLMResponse(
+            text=output.strip(),
+            usage=usage,
+        )
 
     except APIStatusError as error:
         status_code = error.status_code
@@ -98,17 +86,22 @@ def generate_response(
             raise RuntimeError(
                 "Authentication failed. Check your GROQ_API_KEY."
             ) from error
+
         if status_code == 429:
             raise RuntimeError(
                 "Groq rate limit reached. Please try again later."
             ) from error
+
         if status_code >= 500:
-            raise RuntimeError("Groq server error. Please try again later.") from error
+            raise RuntimeError(
+                "Groq server error. Please try again later."
+            ) from error
+
         raise RuntimeError(
             f"Groq API request failed with status: {status_code}."
         ) from error
 
     except APIConnectionError as error:
         raise RuntimeError(
-            "Could not connect to Groq. Check you internet connection."
+            "Could not connect to Groq. Check your internet connection."
         ) from error
