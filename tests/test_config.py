@@ -3,9 +3,11 @@ import pytest
 from src.config import (
     DEFAULT_GROQ_MODEL,
     DEFAULT_GROQ_TEMPERATURE,
+    DEFAULT_GROQ_TIMEOUT,
     get_groq_api_key,
     get_groq_model,
     get_groq_temperature,
+    get_groq_timeout
 )
 
 def test_get_groq_api_key_returns_configured_key(monkeypatch):
@@ -71,3 +73,34 @@ def test_get_groq_temperature_rejects_out_of_range_value(monkeypatch):
         match="GROQ_TEMPERATURE must be between 0 and 2",
     ):
         get_groq_temperature()
+
+def test_get_groq_timeout_returns_configured_value(monkeypatch):
+    monkeypatch.setenv("GROQ_TIMEOUT", "30")
+
+    assert get_groq_timeout() == 30.0
+
+
+def test_get_groq_timeout_uses_default(monkeypatch):
+    monkeypatch.delenv("GROQ_TIMEOUT", raising=False)
+
+    assert get_groq_timeout() == DEFAULT_GROQ_TIMEOUT
+
+
+def test_get_groq_timeout_rejects_invalid_value(monkeypatch):
+    monkeypatch.setenv("GROQ_TIMEOUT", "invalid")
+
+    with pytest.raises(
+        ValueError,
+        match="GROQ_TIMEOUT must be a valid number",
+    ):
+        get_groq_timeout()
+
+
+def test_get_groq_timeout_rejects_non_positive_value(monkeypatch):
+    monkeypatch.setenv("GROQ_TIMEOUT", "0")
+
+    with pytest.raises(
+        ValueError,
+        match="GROQ_TIMEOUT must be greater than 0",
+    ):
+        get_groq_timeout()

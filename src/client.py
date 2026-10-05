@@ -4,6 +4,7 @@ from src.config import (
     get_groq_api_key,
     get_groq_model,
     get_groq_temperature,
+    get_groq_timeout,
 )
 from src.models import LLMResponse, TokenUsage
 
@@ -24,10 +25,12 @@ def get_llm_client() -> OpenAI:
     """Create and return an OpenAI-compatible Groq client."""
 
     api_key = get_groq_api_key()
+    timeout = get_groq_timeout()
 
     return OpenAI(
         api_key=api_key,
         base_url="https://api.groq.com/openai/v1",
+        timeout=timeout,
     )
 
 
