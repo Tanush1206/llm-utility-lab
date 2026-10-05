@@ -7,6 +7,10 @@ from src.summarizer import summarize_text
 
 app = FastAPI(
     title="LLM Utility Lab API",
+    description=(
+        "Production-oriented API for text summarization and "
+        "context-aware question answering."
+    ),
     version="1.0.0",
 )
 
@@ -67,14 +71,23 @@ class AskResponse(BaseModel):
     usage: TokenUsageResponse
 
 
-@app.get("/health")
+@app.get(
+    "/health",
+    tags=["Health"],
+    summary="Check API health",
+)
 def health_check():
     """Return API health status."""
 
     return {"status": "ok"}
 
 
-@app.post("/summarize", response_model=SummarizeResponse)
+@app.post(
+    "/summarize",
+    response_model=SummarizeResponse,
+    tags=["LLM"],
+    summary="Summarize text",
+)
 def summarize(request: SummarizeRequest):
     """Summarize the provided text."""
 
@@ -93,7 +106,12 @@ def summarize(request: SummarizeRequest):
     )
 
 
-@app.post("/ask", response_model=AskResponse)
+@app.post(
+    "/ask",
+    response_model=AskResponse,
+    tags=["LLM"],
+    summary="Answer a question from context",
+)
 def ask_question(request: AskRequest):
     """Answer a question using the provided context."""
 
