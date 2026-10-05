@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import unicodedata
 
+
 @dataclass
 class EvaluationResult:
     """Result of evaluating a model response."""
@@ -11,6 +12,7 @@ class EvaluationResult:
     actual: str
     reason: str
 
+
 @dataclass
 class EvaluationCase:
     """A single evaluation case."""
@@ -18,6 +20,7 @@ class EvaluationCase:
     name: str
     actual: str
     expected: str
+
 
 @dataclass
 class EvaluationSummary:
@@ -27,6 +30,7 @@ class EvaluationSummary:
     passed_cases: int
     failed_cases: int
     score: float
+
 
 @dataclass
 class EvaluationReport:
@@ -40,8 +44,9 @@ class EvaluationReport:
     prompt_version: str
     results: list[EvaluationResult]
 
+
 @dataclass
-class EvaluationComparison():
+class EvaluationComparison:
     """Comparison between two evaluation runs."""
 
     score_change: float
@@ -49,11 +54,15 @@ class EvaluationComparison():
     passed_cases_change: int
     failed_cases_change: int
 
+
 @dataclass
-class EvaluationRegression():
+class EvaluationRegression:
     """A test case that regressed between evaluation runs."""
 
     case_name: str
+    expected: str
+    previous_actual: str
+    current_actual: str
     previous_passed: bool
     current_passed: bool
 
@@ -61,7 +70,7 @@ class EvaluationRegression():
 def normalize_text(text: str) -> str:
     """Normalize text for reliable evaluation comparisons."""
 
-    text = unicodedata.normalize("NFKC" , text)
+    text = unicodedata.normalize("NFKC", text)
 
     hyphens = {
         "\u2010": "-",
@@ -77,11 +86,12 @@ def normalize_text(text: str) -> str:
 
     return " ".join(text.strip().lower().split())
 
+
 def evaluate_contains(
     case_name: str,
     actual: str,
     expected: str,
-)-> EvaluationResult:
+) -> EvaluationResult:
     """
     Check whether the model response contains the expected text.
     """
@@ -101,26 +111,20 @@ def evaluate_contains(
         passed=passed,
         expected=expected,
         actual=actual,
-        reason=reason
+        reason=reason,
     )
+
 
 def validate_evaluation_cases(cases: list[dict]) -> None:
     """Validate the structure of evaluation cases."""
-    required_fields = {
-        "name",
-        "context",
-        "question",
-        "expected"
-    }
+    required_fields = {"name", "context", "question", "expected"}
 
-    if not isinstance(cases, list) :
+    if not isinstance(cases, list):
         raise ValueError("Evaluation cases must be provided as a list.")
 
-    for index, case in enumerate(cases, start = 1):
-        if not isinstance(case, dict) :
-            raise ValueError(
-                "Evaluation cases {index} must be an object."
-            )
+    for index, case in enumerate(cases, start=1):
+        if not isinstance(case, dict):
+            raise ValueError("Evaluation cases {index} must be an object.")
 
         missing_fields = required_fields - case.keys()
 
@@ -134,20 +138,23 @@ def validate_evaluation_cases(cases: list[dict]) -> None:
         for field in required_fields:
             value = case[field]
 
-            if not isinstance(value, str) :
-                raise ValueError(f"Evaluation cases {index} field '{field}' must be a string.")
+            if not isinstance(value, str):
+                raise ValueError(
+                    f"Evaluation cases {index} field '{field}' must be a string."
+                )
 
             if not value.strip():
                 raise ValueError(
                     f"Evaluation case {index} field '{field}' cannot be empty."
                 )
 
+
 def run_evaluation(
     cases: list[EvaluationCase],
 ) -> list[EvaluationResult]:
     """Run all evaluation cases and return their results."""
 
-    results=[]
+    results = []
 
     for case in cases:
         result = evaluate_contains(
@@ -159,6 +166,7 @@ def run_evaluation(
         results.append(result)
     return results
 
+
 def compare_evaluation_runs(
     previous: EvaluationReport,
     current: EvaluationReport,
@@ -169,47 +177,42 @@ def compare_evaluation_runs(
         score_change=current.summary.score - previous.summary.score,
         token_change=current.total_tokens - previous.total_tokens,
         passed_cases_change=(
-            current.summary.passed_cases
-            - previous.summary.passed_cases
+            current.summary.passed_cases - previous.summary.passed_cases
         ),
         failed_cases_change=(
-            current.summary.failed_cases
-            - previous.summary.failed_cases
+            current.summary.failed_cases - previous.summary.failed_cases
         ),
     )
 
+
 def find_regressions(
-    previous: EvaluationReport,
-    current: EvaluationReport
+    previous: EvaluationReport, current: EvaluationReport
 ) -> list[EvaluationRegression]:
     """Find evaluation cases that changed from pass to fail."""
 
-    previous_results = {
-        result.case_name : result
-        for result in previous.results
-    }
+    previous_results = {result.case_name: result for result in previous.results}
 
     regressions = []
 
     for current_result in current.results:
         previous_result = previous_results.get(current_result.case_name)
 
-        if(
-            previous_result
-            and previous_result.passed
-            and not current_result.passed
-        ):
+        if previous_result and previous_result.passed and not current_result.passed:
             regressions.append(
                 EvaluationRegression(
-                    case_name = current_result.case_name,
-                    previous_passed = previous_result.passed,
-                    current_passed = current_result.passed
+                    case_name=current_result.case_name,
+                    expected=current_result.expected,
+                    previous_actual=previous_result.actual,
+                    current_actual=current_result.actual,
+                    previous_passed=previous_result.passed,
+                    current_passed=current_result.passed,
                 )
             )
     return regressions
 
+
 def summarize_evaluation(
-        results: list[EvaluationResult],
+    results: list[EvaluationResult],
 ) -> EvaluationSummary:
     """Create aggregate metrics from evaluation results."""
 
@@ -217,15 +220,11 @@ def summarize_evaluation(
     passed_cases = sum(result.passed for result in results)
     failed_cases = total_cases - passed_cases
 
-    score = (
-        (passed_cases / total_cases) * 100
-        if total_cases
-        else 0.0
-    )
+    score = (passed_cases / total_cases) * 100 if total_cases else 0.0
 
     return EvaluationSummary(
         total_cases=total_cases,
         passed_cases=passed_cases,
         failed_cases=failed_cases,
-        score=score
+        score=score,
     )

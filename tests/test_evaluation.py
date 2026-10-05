@@ -351,7 +351,10 @@ def test_find_regressions():
     assert len(regressions) == 1
     assert regressions[0].case_name == "Founded year"
     assert regressions[0].previous_passed == True
-    assert regressions[0].current_passed == False
+
+    assert regressions[0].expected == "2018"
+    assert regressions[0].previous_actual == "2018"
+    assert regressions[0].current_actual == "2019"
 
 
 def test_find_regressions_returns_empty_when_no_regression():
