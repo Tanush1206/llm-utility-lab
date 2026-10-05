@@ -188,7 +188,7 @@ def main():
                 print(f"   Current:  {regression.current_actual}")
 
         else :
-            print("\n=== Regression Detected ===")
+            print("\n=== Regressions Detected ===")
             print("None")
 
     save_evaluation_report(report)
