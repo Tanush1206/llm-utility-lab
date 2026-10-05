@@ -49,6 +49,18 @@ class SummarizeRequest(BaseModel):
     text: str = Field(min_length=1)
     max_sentences: int = Field(default=3, ge=1)
 
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "text": (
+                    "The company was founded in 2018 and develops "
+                    "cloud-based accounting software."
+                ),
+                "max_sentences": 1,
+            }
+        }
+    }
+
 
 class TokenUsageResponse(BaseModel):
     input_tokens: int
@@ -64,6 +76,15 @@ class SummarizeResponse(BaseModel):
 class AskRequest(BaseModel):
     context: str = Field(min_length=1)
     question: str = Field(min_length=1)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "context": "The company was founded in 2018.",
+                "question": "When was the company founded?",
+            }
+        }
+    }
 
 
 class AskResponse(BaseModel):
