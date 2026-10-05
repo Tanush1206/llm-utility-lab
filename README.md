@@ -1,4 +1,4 @@
-# LLM Utility Lab
+# 🚀 LLM Utility Lab
 
 > A modular LLM-powered utility application for text summarization and context-aware question answering.
 
@@ -8,7 +8,7 @@ The project uses the **Groq API through its OpenAI-compatible interface** and fo
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
 ### Text Summarization
 
@@ -43,12 +43,16 @@ The project uses the **Groq API through its OpenAI-compatible interface** and fo
 - Evaluation runner
 - Live Q&A evaluation against the LLM
 - Aggregate evaluation score
-- Total token usage tracking
+- Total token tracking
+- Historical evaluation reports
+- Evaluation run comparison
+- Case-level regression detection
 
 ### Testing
 
-- Automated unit tests with pytest
+- Automated unit tests with `pytest`
 - Input validation tests
+- Prompt construction tests
 - Evaluation framework tests
 - Evaluation runner tests
 
@@ -56,48 +60,58 @@ The project uses the **Groq API through its OpenAI-compatible interface** and fo
 
 ## 🏗️ Architecture
 
-```text
-                        ┌─────────────────┐
-                        │      User       │
-                        └────────┬────────┘
-                                 │
-                                 ▼
-                        ┌─────────────────┐
-                        │    main.py      │
-                        │   CLI Interface │
-                        └────────┬────────┘
-                                 │
-                    ┌────────────┴────────────┐
-                    │                         │
-                    ▼                         ▼
-             ┌──────────────┐         ┌──────────────┐
-             │  Summarizer  │         │      Q&A     │
-             │ summarizer.py│         │    qa.py     │
-             └──────┬───────┘         └──────┬───────┘
-                    │                         │
-                    ▼                         ▼
-             ┌────────────────────────────────────┐
-             │            prompts.py              │
-             │     Prompt Construction Layer      │
-             └────────────────┬───────────────────┘
-                              │
-                              ▼
-                     ┌─────────────────┐
-                     │    client.py    │
-                     │   LLM Client    │
-                     └────────┬────────┘
-                              │
-                              ▼
-                     ┌─────────────────┐
-                     │    Groq API     │
-                     │  Responses API  │
-                     └────────┬────────┘
-                              │
-                              ▼
-                     ┌─────────────────┐
-                     │   LLMResponse   │
-                     │   Text + Usage  │
-                     └─────────────────┘
+```
+User
+  │
+  ▼
+main.py
+CLI Interface
+  │
+  ├───────────────┐
+  ▼               ▼
+Summarizer      Q&A
+summarizer.py   qa.py
+  │               │
+  └───────┬───────┘
+          ▼
+      prompts.py
+  Prompt Construction Layer
+          │
+          ▼
+      client.py
+       LLM Client
+          │
+          ▼
+       Groq API
+     Responses API
+          │
+          ▼
+      LLMResponse
+      Text + Usage
+```
+
+The evaluation pipeline is separated from the main application flow:
+
+```
+qa_cases.json
+      │
+      ▼
+evaluate_qa.py
+      │
+      ▼
+Evaluation Framework
+      │
+      ├── Run evaluation
+      ├── Calculate score
+      ├── Track tokens
+      ├── Compare previous run
+      └── Detect regressions
+      │
+      ▼
+evaluation/
+├── latest_report.json
+└── history/
+    └── report_*.json
 ```
 
 ---
@@ -123,58 +137,56 @@ LLM Utility Lab/
 ├── examples/
 │   └── sample_inputs.txt
 │
+├── evaluation/
+│   ├── qa_cases.json
+│   ├── latest_report.json
+│   └── history/
+│       └── report_*.json
+│
 ├── evaluate_qa.py
 ├── main.py
 ├── .env.example
 ├── .gitignore
-├── requirements.txt
-└── README.md
+├── README.md
+└── requirements.txt
 ```
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Technology | Purpose |
-|---|---|
-| Python | Core programming language |
-| Groq API | LLM inference |
-| OpenAI Python SDK | API client |
-| python-dotenv | Environment variable management |
-| pytest | Automated testing |
+- **Python**
+- **Groq API**
+- **OpenAI Python SDK**
+- **python-dotenv**
+- **pytest**
+- **JSON-based evaluation datasets**
+- **Git & GitHub**
 
 ---
 
 ## ⚙️ Installation
 
-### 1. Clone the repository
+Clone the repository:
 
 ```bash
 git clone https://github.com/Tanush1206/llm-utility-lab.git
 cd llm-utility-lab
 ```
 
-### 2. Create a virtual environment
+Create a virtual environment:
 
 ```bash
 python -m venv .venv
 ```
 
-### 3. Activate the virtual environment
-
-#### Windows PowerShell
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-#### macOS / Linux
+Activate the environment on Windows:
 
 ```bash
-source .venv/bin/activate
+.venv\Scripts\activate
 ```
 
-### 4. Install dependencies
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -182,137 +194,38 @@ pip install -r requirements.txt
 
 ---
 
-## 🔑 Environment Setup
+## 🔐 Environment Setup
 
 Create a `.env` file in the project root:
 
 ```env
-GROQ_API_KEY=your_groq_api_key_here
+GROQ_API_KEY=your_groq_api_key
+GROQ_MODEL=openai/gpt-oss-20b
+GROQ_TEMPERATURE=0.1
 ```
 
-You can use `.env.example` as a template.
-
-> **Security:** Never commit your real API key to GitHub.
-
-The `.gitignore` file is configured to exclude `.env`.
+The `.env` file is intentionally excluded from version control.
 
 ---
 
-# ▶️ Running the Application
+## ▶️ Running the Application
 
-Start the CLI application:
+Run the CLI application:
 
 ```bash
 python main.py
 ```
 
-The application provides three options:
+The application provides options for:
 
-```text
-=== LLM Utility Lab ===
+- Text summarization
+- Context-aware question answering
 
-1. Summarize text
-2. Ask a question
-3. Exit
-```
+The CLI also supports multi-line input for longer context and text.
 
 ---
 
-## 📝 Text Summarization
-
-Select option `1`:
-
-```text
-Choose an option: 1
-```
-
-You can provide multi-line text:
-
-```text
-Enter text to summarize:
-
-Artificial intelligence is transforming many industries.
-It is being used in healthcare, finance, education, and software development.
-Organizations must also consider privacy, security, and responsible deployment.
-
-(Press Enter on an empty line to finish.)
-```
-
-The application sends the provided text to the LLM and returns the generated summary.
-
-Example:
-
-```text
---- Summary ---
-
-Artificial intelligence is transforming multiple industries,
-while organizations must consider responsible deployment,
-privacy, security, and other governance concerns.
-
---- Usage ---
-
-Input tokens: 551
-Output tokens: 155
-Total tokens: 706
-```
-
----
-
-## 💬 Context-Aware Q&A
-
-Select option `2`:
-
-```text
-Choose an option: 2
-```
-
-Provide your context:
-
-```text
-Enter context:
-
-Python was created by Guido van Rossum.
-It was first released in 1991.
-Python is widely used for software development and data science.
-
-(Press Enter on an empty line to finish.)
-```
-
-Then provide your question:
-
-```text
-Enter your question:
-
-Who created Python?
-```
-
-Example response:
-
-```text
---- Answer ---
-
-Guido van Rossum.
-
---- Usage ---
-
-Input tokens: 211
-Output tokens: 52
-Total tokens: 263
-```
-
-The Q&A system is instructed to answer using only the supplied context.
-
-If the required information is not available in the context, the system can respond:
-
-```text
-The answer cannot be determined from the provided context.
-```
-
----
-
-## 🧪 Testing
-
-The project includes automated tests using `pytest`.
+## 🧪 Running Tests
 
 Run the complete test suite:
 
@@ -320,32 +233,56 @@ Run the complete test suite:
 python -m pytest -q
 ```
 
-The test suite covers:
+Current test suite:
 
+```text
+22 passed
+```
+
+The tests cover:
+
+- Prompt construction
+- Input validation
 - Evaluation logic
-- Expected text matching
-- Case-insensitive evaluation
-- Unicode text normalization
-- Evaluation runner behavior
-- Empty evaluation cases
-- Summarizer input validation
-- Q&A input validation
-
-All tests should pass before changes are committed.
+- Text normalization
+- Evaluation summaries
+- Evaluation comparison
+- Regression detection
+- Evaluation report generation
+- Evaluation history handling
 
 ---
 
-## 📊 LLM Evaluation
+## 📊 Evaluation Framework
 
-The project includes a separate live evaluation runner:
+The project includes a dedicated evaluation framework for measuring the reliability of the Q&A system.
+
+Evaluation cases are stored in:
+
+```text
+evaluation/qa_cases.json
+```
+
+Each evaluation case contains:
+
+```json
+{
+  "name": "Direct factual answer",
+  "context": "The company was founded in 2018.",
+  "question": "When was the company founded?",
+  "expected": "2018"
+}
+```
+
+The evaluation runner sends each case to the LLM and checks whether the expected information appears in the response.
+
+Run the evaluation with:
 
 ```bash
 python evaluate_qa.py
 ```
 
-This script sends predefined Q&A cases to the actual LLM and evaluates the generated responses.
-
-Example:
+Example output:
 
 ```text
 === Q&A Evaluation ===
@@ -360,136 +297,178 @@ Score: 100%
 Total tokens: 758
 ```
 
-### Evaluation Cases
+---
 
-The current evaluation covers:
+## 📈 Evaluation Run Comparison
 
-1. Direct factual question
-2. Context-grounded question
-3. Question where the required information is missing
+The evaluation runner compares the current evaluation run with the previous historical run and reports:
 
-The evaluation runner is separate from the automated test suite because it makes real LLM API calls.
+- Score change
+- Token usage change
+- Passed case change
+- Failed case change
+
+Example:
+
+```text
+=== Evaluation Comparison ===
+Score change: +0.00%
+Token change: -2
+Passed cases change: +0
+Failed cases change: +0
+```
+
+This makes it easier to identify whether changes to prompts, models, or application logic affected evaluation performance.
 
 ---
 
-## 🧩 Design Principles
+## 🔍 Regression Detection
+
+The evaluation framework detects **case-level regressions** where an evaluation case previously passed but fails in the current run.
+
+Example:
+
+```text
+Previous run: PASS
+Current run: FAIL
+```
+
+A regression is therefore treated differently from a general score change.
+
+This allows individual evaluation cases to be identified when a change causes previously successful behavior to fail.
+
+---
+
+## 📂 Evaluation Reports
+
+Every evaluation run produces a report containing:
+
+- Evaluation summary
+- Total token usage
+- Model name
+- Temperature
+- Run timestamp
+- Prompt version
+- Individual case results
+
+The latest evaluation report is stored at:
+
+```text
+evaluation/latest_report.json
+```
+
+Historical evaluation reports are stored in:
+
+```text
+evaluation/history/
+```
+
+Example:
+
+```text
+evaluation/
+├── qa_cases.json
+├── latest_report.json
+└── history/
+    ├── report_2026-09-21T123639.506421+0000.json
+    └── report_2026-09-21T133411.928910+0000.json
+```
+
+This provides a lightweight history of model evaluation performance over time.
+
+---
+
+## 🧠 Evaluation Design
+
+The evaluation system separates the following responsibilities:
+
+```text
+Evaluation Case
+      │
+      ▼
+Model Response
+      │
+      ▼
+Response Normalization
+      │
+      ▼
+Expected Text Matching
+      │
+      ▼
+Evaluation Result
+      │
+      ▼
+Aggregate Metrics
+      │
+      ├── Score
+      ├── Passed Cases
+      ├── Failed Cases
+      └── Token Usage
+```
+
+The framework also supports comparing two complete evaluation runs:
+
+```text
+Previous Run
+     │
+     ├── Score
+     ├── Tokens
+     ├── Passed Cases
+     └── Failed Cases
+          │
+          ▼
+     Comparison
+          ▲
+          │
+     Current Run
+```
+
+---
+
+## 🎯 Design Principles
+
+The project follows several engineering principles:
 
 ### Separation of Concerns
 
-Different responsibilities are isolated into separate modules:
+LLM communication, prompt construction, application logic, evaluation, and data models are implemented as separate modules.
 
-```text
-client.py       → LLM/API communication
-models.py       → Response and token data models
-prompts.py      → Prompt construction
-summarizer.py   → Summarization logic
-qa.py           → Q&A logic
-evaluation.py   → Evaluation logic
-main.py         → CLI interaction
-```
+### Configuration Through Environment Variables
 
-This makes individual components easier to test, modify, and extend.
+Model configuration and temperature are controlled through environment variables rather than hardcoded values.
 
----
+### Structured Responses
 
-### Grounded Question Answering
+LLM responses and token usage are represented using dedicated data models.
 
-The Q&A system uses explicit instructions to restrict responses to the provided context.
+### Input Validation
 
-This helps reduce unsupported or fabricated answers when the required information is not available.
+Invalid or empty inputs are rejected before making unnecessary API requests.
 
----
+### Error Handling
 
-### Token Usage Tracking
-
-Each LLM response contains usage information:
-
-```text
-Input tokens
-Output tokens
-Total tokens
-```
-
-This provides visibility into the size and usage of individual LLM requests.
-
----
+Common API failures such as authentication errors, rate limits, server errors, and connection failures are converted into clear application-level errors.
 
 ### Evaluation-Driven Development
 
-The project separates two types of validation.
-
-#### Automated Tests
-
-Used to verify that the Python application logic works correctly.
-
-```bash
-python -m pytest -q
-```
-
-#### Live LLM Evaluation
-
-Used to observe the behavior of the actual model.
-
-```bash
-python evaluate_qa.py
-```
-
-This distinction is important because **code correctness and LLM response quality are different things**.
+The project includes automated evaluation cases and regression detection so that changes to the LLM system can be measured instead of judged only manually.
 
 ---
 
 ## 🔮 Future Improvements
 
-The following features are planned but are **not currently implemented**:
+Potential future improvements include:
 
-- Web-based user interface
-- REST API
-- Structured LLM outputs
-- Larger evaluation datasets
-- Additional evaluation metrics
-- Persistent evaluation reports
-- Model comparison
+- Semantic evaluation using embeddings
+- LLM-as-a-judge evaluation
+- More comprehensive evaluation datasets
 - Retrieval-Augmented Generation (RAG)
-- Conversation history
-- Docker deployment
-- Production deployment
-- Logging and observability
-- Configuration management
-
----
-
-## 🎯 Learning Goals
-
-This project is being developed to explore practical LLM application engineering concepts, including:
-
-- LLM API integration
-- Prompt engineering
-- Context-aware generation
-- Input validation
-- Error handling
-- Token usage tracking
-- LLM evaluation
-- Automated testing
-- Modular Python architecture
-
----
-
-## 📌 Project Status
-
-**Current Status:** Active Development
-
-### Implemented
-
-- ✅ Groq LLM integration
-- ✅ Text summarization
-- ✅ Context-aware Q&A
-- ✅ Dynamic multi-line CLI input
-- ✅ Prompt architecture
-- ✅ Token usage tracking
-- ✅ Error handling
-- ✅ Evaluation framework
-- ✅ Live Q&A evaluation
-- ✅ Automated tests
+- Persistent experiment tracking
+- Evaluation dashboards
+- Additional LLM providers
+- Streaming responses
+- Improved CLI experience
+- Automated CI evaluation runs
 
 ---
 
@@ -497,5 +476,9 @@ This project is being developed to explore practical LLM application engineering
 
 **Tanush Thakran**
 
+Computer Science Student
+Interested in AI/ML Engineering, LLM Applications, and Data Science.
+
 GitHub:
+
 https://github.com/Tanush1206
