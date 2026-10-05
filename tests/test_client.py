@@ -229,3 +229,27 @@ def test_generate_response_uses_configured_defaults(monkeypatch):
     assert captured_args["input"] == "Test prompt"
     assert captured_args["temperature"] == 0.3
     assert "instructions" not in captured_args
+
+
+def test_generate_response_rejects_empty_llm_output(monkeypatch):
+    class EmptyResponse:
+        output_text = "   "
+        usage = FakeUsage()
+
+    class FakeResponses:
+        def create(self, **kwargs):
+            return EmptyResponse()
+
+    class FakeClient:
+        responses = FakeResponses()
+
+    monkeypatch.setattr(
+        "src.client.get_llm_client",
+        lambda: FakeClient(),
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="The LLM returned an empty response",
+    ):
+        generate_response(prompt="Test prompt")
