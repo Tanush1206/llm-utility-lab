@@ -70,3 +70,48 @@ def test_summarize_rejects_invalid_max_sentences():
     )
 
     assert response.status_code == 422
+
+def test_ask_endpoint(monkeypatch):
+    fake_response = LLMResponse(
+        text="2018",
+        usage=TokenUsage(
+            input_tokens=10,
+            output_tokens=5,
+            total_tokens=15,
+        ),
+    )
+
+    monkeypatch.setattr(
+        "api.answer_question",
+        lambda context, question: fake_response,
+    )
+
+    response = client.post(
+        "/ask",
+        json={
+            "context": "The company was founded in 2018.",
+            "question": "When was the company founded?",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "answer": "2018",
+        "usage": {
+            "input_tokens": 10,
+            "output_tokens": 5,
+            "total_tokens": 15,
+        },
+    }
+
+
+def test_ask_rejects_empty_context():
+    response = client.post(
+        "/ask",
+        json={
+            "context": "",
+            "question": "When was the company founded?",
+        },
+    )
+
+    assert response.status_code == 422

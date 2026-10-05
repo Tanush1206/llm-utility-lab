@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
-
+from src.qa import answer_question
 from src.summarizer import summarize_text
 
 
@@ -25,6 +25,14 @@ class SummarizeResponse(BaseModel):
     summary: str
     usage: TokenUsageResponse
 
+class AskRequest(BaseModel):
+    context: str = Field(min_length=1)
+    question: str = Field(min_length=1)
+
+
+class AskResponse(BaseModel):
+    answer: str
+    usage: TokenUsageResponse
 
 @app.get("/health")
 def health_check():
@@ -50,3 +58,22 @@ def summarize(request: SummarizeRequest):
             total_tokens=response.usage.total_tokens,
         ),
     )
+
+@app.post("/ask", response_model=AskResponse)
+def ask_question(request: AskRequest):
+    """Answer a question using the provided context."""
+
+    response = answer_question(
+        context=request.context,
+        question=request.question,
+    )
+
+    return AskResponse(
+        answer=response.text,
+        usage=TokenUsageResponse(
+            input_tokens=response.usage.input_tokens,
+            output_tokens=response.usage.output_tokens,
+            total_tokens=response.usage.total_tokens,
+        ),
+    )
+
