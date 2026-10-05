@@ -8,6 +8,7 @@ from src.evaluation import (
     EvaluationCase,
     EvaluationReport,
     EvaluationSummary,
+    EvaluationResult,
     compare_evaluation_runs,
     find_regressions,
     run_evaluation,
@@ -47,6 +48,17 @@ def load_previous_evaluation_report(
 
     summary = data["summary"]
 
+    results = [
+        EvaluationResult(
+            case_name=result["case_name"],
+            passed=result["passed"],
+            expected=result["expected"],
+            actual=result["actual"],
+            reason=result["reason"]
+        )
+        for result in data["results"]
+    ]
+
     return EvaluationReport(
         summary=EvaluationSummary(
             total_cases=summary["total_cases"],
@@ -59,7 +71,7 @@ def load_previous_evaluation_report(
         temperature=data["temperature"],
         run_at=data["run_at"],
         prompt_version=data["prompt_version"],
-        results=[],
+        results=results,
     )
 
 
