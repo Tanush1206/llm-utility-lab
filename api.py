@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from src.qa import answer_question
 from src.summarizer import summarize_text
@@ -45,10 +45,16 @@ def health_check():
 def summarize(request: SummarizeRequest):
     """Summarize the provided text."""
 
-    response = summarize_text(
-        text=request.text,
-        max_sentences=request.max_sentences,
-    )
+    try:
+        response = summarize_text(
+            text=request.text,
+            max_sentences=request.max_sentences,
+        )
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=502,
+            detail=str(error),
+        ) from error
 
     return SummarizeResponse(
         summary=response.text,
@@ -63,10 +69,16 @@ def summarize(request: SummarizeRequest):
 def ask_question(request: AskRequest):
     """Answer a question using the provided context."""
 
-    response = answer_question(
-        context=request.context,
-        question=request.question,
-    )
+    try:
+        response = answer_question(
+            context=request.context,
+            question=request.question,
+        )
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=502,
+            detail=str(error),
+        ) from error
 
     return AskResponse(
         answer=response.text,

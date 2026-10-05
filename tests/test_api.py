@@ -115,3 +115,42 @@ def test_ask_rejects_empty_context():
     )
 
     assert response.status_code == 422
+
+def test_summarize_handles_llm_error(monkeypatch):
+    def raise_error(text, max_sentences):
+        raise RuntimeError("Groq rate limit reached. Please try again later.")
+
+    monkeypatch.setattr("api.summarize_text", raise_error)
+
+    response = client.post(
+        "/summarize",
+        json={
+            "text": "The company was founded in 2018.",
+            "max_sentences": 1,
+        },
+    )
+
+    assert response.status_code == 502
+    assert response.json() == {
+        "detail": "Groq rate limit reached. Please try again later."
+    }
+
+
+def test_ask_handles_llm_error(monkeypatch):
+    def raise_error(context, question):
+        raise RuntimeError("Groq server error. Please try again later.")
+
+    monkeypatch.setattr("api.answer_question", raise_error)
+
+    response = client.post(
+        "/ask",
+        json={
+            "context": "The company was founded in 2018.",
+            "question": "When was the company founded?",
+        },
+    )
+
+    assert response.status_code == 502
+    assert response.json() == {
+        "detail": "Groq server error. Please try again later."
+    }
