@@ -6,3 +6,6 @@ env/
 .env
 .vscode/
 .pytest_cache/
+
+evaluation/latest_report.json
+evaluation/history/
