@@ -7,7 +7,10 @@ from src.config import (
     get_groq_timeout,
 )
 from src.models import LLMResponse, TokenUsage
+from time import perf_counter
+from src.logging_config import get_logger
 
+logger = get_logger("client")
 
 def get_default_model() -> str:
     """Return the configured default LLM model."""
@@ -45,6 +48,13 @@ def generate_response(
     if not prompt.strip():
         raise ValueError("Prompt cannot be empty.")
 
+    start_time = perf_counter()
+
+    logger.info(
+        "LLM request started | model=%s",
+        model or get_default_model(),
+    )
+
     client = get_llm_client()
 
     try:
@@ -77,12 +87,30 @@ def generate_response(
             total_tokens=response.usage.total_tokens,
         )
 
+        duration = perf_counter() - start_time
+
+        logger.info(
+            "LLM request completed | model=%s | duration=%.2fs | "
+            "input_tokens=%d | output_tokens=%d | total_tokens=%d",
+            model or get_default_model(),
+            duration,
+            usage.input_tokens,
+            usage.output_tokens,
+            usage.total_tokens,
+        )
+
         return LLMResponse(
             text=output.strip(),
             usage=usage,
         )
 
     except APIStatusError as error:
+        logger.error(
+            "LLM request failed | status_code=%s | error_type=%s",
+            error.status_code,
+            type(error).__name__,
+        )
+
         status_code = error.status_code
 
         if status_code == 401:
@@ -105,6 +133,11 @@ def generate_response(
         ) from error
 
     except APIConnectionError as error:
+        logger.error(
+            "LLM request failed | error_type=%s",
+            type(error).__name__,
+        )
+
         raise RuntimeError(
             "Could not connect to Groq. Check your internet connection."
         ) from error

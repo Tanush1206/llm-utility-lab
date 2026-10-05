@@ -1,5 +1,6 @@
 from src.qa import answer_question
 from src.summarizer import summarize_text
+from src.logging_config import configure_logging
 
 def read_multiline_input(prompt: str) -> str:
     """Read milti-line input until the user enters a blank line."""
@@ -20,6 +21,8 @@ def read_multiline_input(prompt: str) -> str:
     return "\n".join(lines).strip()
 
 def main():
+    configure_logging()
+
     while True:
         print("\n=== LLM Utility Lab ===")
         print("1. Summarize text")
