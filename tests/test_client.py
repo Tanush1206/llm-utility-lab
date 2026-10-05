@@ -165,3 +165,67 @@ def test_generate_response_handles_connection_error(monkeypatch):
         match="Could not connect to Groq",
     ):
         generate_response(prompt="Test")
+
+
+def test_generate_response_sends_expected_request_arguments(monkeypatch):
+    captured_args = {}
+
+    class FakeResponses:
+        def create(self, **kwargs):
+            captured_args.update(kwargs)
+            return FakeResponse()
+
+    class FakeClient:
+        responses = FakeResponses()
+
+    monkeypatch.setattr(
+        "src.client.get_llm_client",
+        lambda: FakeClient(),
+    )
+
+    response = generate_response(
+        prompt="When was the company founded?",
+        instructions="Answer using only the provided context.",
+        model="test-model",
+        temperature=0.7,
+    )
+
+    assert response.text == "2018"
+    assert captured_args["model"] == "test-model"
+    assert captured_args["input"] == "When was the company founded?"
+    assert captured_args["instructions"] == (
+        "Answer using only the provided context."
+    )
+    assert captured_args["temperature"] == 0.7
+
+
+def test_generate_response_uses_configured_defaults(monkeypatch):
+    captured_args = {}
+
+    class FakeResponses:
+        def create(self, **kwargs):
+            captured_args.update(kwargs)
+            return FakeResponse()
+
+    class FakeClient:
+        responses = FakeResponses()
+
+    monkeypatch.setattr(
+        "src.client.get_llm_client",
+        lambda: FakeClient(),
+    )
+    monkeypatch.setattr(
+        "src.client.get_default_model",
+        lambda: "configured-model",
+    )
+    monkeypatch.setattr(
+        "src.client.get_default_temperature",
+        lambda: 0.3,
+    )
+
+    generate_response(prompt="Test prompt")
+
+    assert captured_args["model"] == "configured-model"
+    assert captured_args["input"] == "Test prompt"
+    assert captured_args["temperature"] == 0.3
+    assert "instructions" not in captured_args
