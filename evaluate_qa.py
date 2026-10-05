@@ -183,6 +183,9 @@ def main():
 
             for regression in regressions:
                 print(f"✗ {regression.case_name}")
+                print(f"   Expected: {regression.expected}")
+                print(f"   Previous: {regression.previous_actual}")
+                print(f"   Current:  {regression.current_actual}")
 
         else :
             print("\n=== Regression Detected ===")
