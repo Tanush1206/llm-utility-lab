@@ -9,6 +9,7 @@ from src.evaluation import (
     EvaluationReport,
     EvaluationSummary,
     compare_evaluation_runs,
+    find_regressions,
     run_evaluation,
     summarize_evaluation,
     validate_evaluation_cases,
@@ -159,6 +160,21 @@ def main():
         print(f"Token change: {comparison.token_change:+d}")
         print(f"Passed cases change: {comparison.passed_cases_change:+d}")
         print(f"Failed cases change: {comparison.failed_cases_change:+d}")
+
+        regressions = find_regressions(
+            previous=previous_report,
+            current=report
+        )
+
+        if regressions:
+            print("\n=== Regressions Detected ===")
+
+            for regression in regressions:
+                print(f"✗ {regression.case_name}")
+
+        else :
+            print("\n=== Regression Detected ===")
+            print("None")
 
     save_evaluation_report(report)
 

@@ -49,6 +49,15 @@ class EvaluationComparison():
     passed_cases_change: int
     failed_cases_change: int
 
+@dataclass
+class EvaluationRegression():
+    """A test case that regressed between evaluation runs."""
+
+    case_name: str
+    previous_passed: bool
+    current_passed: bool
+
+
 def normalize_text(text: str) -> str:
     """Normalize text for reliable evaluation comparisons."""
 
@@ -168,6 +177,36 @@ def compare_evaluation_runs(
             - previous.summary.failed_cases
         ),
     )
+
+def find_regressions(
+    previous: EvaluationReport,
+    current: EvaluationReport
+) -> list[EvaluationRegression]:
+    """Find evaluation cases that changed from pass to fail."""
+
+    previous_results = {
+        result.case_name : result
+        for result in previous.results
+    }
+
+    regressions = []
+
+    for current_result in current.results:
+        previous_result = previous_results.get(current_result.case_name)
+
+        if(
+            previous_result
+            and previous_result.passed
+            and not current_result.passed
+        ):
+            regressions.append(
+                EvaluationRegression(
+                    case_name = current_result.case_name,
+                    previous_passed = previous_result.passed,
+                    current_passed = current_result.passed
+                )
+            )
+    return regressions
 
 def summarize_evaluation(
         results: list[EvaluationResult],

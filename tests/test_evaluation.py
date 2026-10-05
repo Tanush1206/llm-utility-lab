@@ -4,14 +4,21 @@ from pathlib import Path
 from src.evaluation import (
     EvaluationCase,
     EvaluationReport,
+    EvaluationRegression,
     EvaluationResult,
     EvaluationSummary,
+    compare_evaluation_runs,
     evaluate_contains,
+    find_regressions,
     run_evaluation,
     summarize_evaluation,
-    compare_evaluation_runs
+    validate_evaluation_cases,
 )
-from evaluate_qa import load_evaluation_cases, validate_evaluation_cases, save_evaluation_report
+from evaluate_qa import (
+    load_evaluation_cases,
+    validate_evaluation_cases,
+    save_evaluation_report,
+)
 
 
 def test_evaluation_passes_expected_text_is_present():
@@ -190,6 +197,7 @@ def test_validate_evaluation_cases_rejects_non_string_field():
     except ValueError as error:
         assert "must be a string" in str(error)
 
+
 def test_validate_evaluation_cases_rejects_empty_field():
     cases = [
         {
@@ -227,7 +235,7 @@ def test_save_evaluation_report(tmp_path):
         temperature=0.1,
         run_at="2026-09-18T19:00:00+05:30",
         prompt_version="qa-v1",
-        results=results
+        results=results,
     )
 
     report_path = tmp_path / "report.json"
@@ -235,8 +243,8 @@ def test_save_evaluation_report(tmp_path):
     save_evaluation_report(report, report_path)
 
     history_filename = (
-            f"report_{report.run_at.replace(':', '').replace('+00.00', 'Z')}.json"
-        )
+        f"report_{report.run_at.replace(':', '').replace('+00.00', 'Z')}.json"
+    )
 
     history_path = tmp_path / "history" / history_filename
 
@@ -247,40 +255,152 @@ def test_save_evaluation_report(tmp_path):
 def test_compare_evaluation_runs():
     previous = EvaluationReport(
         summary=EvaluationSummary(
-            total_cases=3,
-            passed_cases=2,
-            failed_cases=1,
-            score=66.67
+            total_cases=3, passed_cases=2, failed_cases=1, score=66.67
         ),
         total_tokens=800,
         model="openai/gpt-oss-20b",
         temperature=0.1,
         run_at="2026-09-20T12:00:00+00:00",
         prompt_version="qa-v1",
-        results=[]
+        results=[],
     )
 
     current = EvaluationReport(
         summary=EvaluationSummary(
-            total_cases=3,
-            passed_cases=3,
-            failed_cases=0,
-            score=100.0
+            total_cases=3, passed_cases=3, failed_cases=0, score=100.0
         ),
         total_tokens=758,
         model="openai/gpt-oss-20b",
         temperature=0.1,
         run_at="2026-09-21T12:00:00+00:00",
         prompt_version="qa-v1",
-        results=[]
+        results=[],
     )
 
-    comparison = compare_evaluation_runs(
-        previous = previous,
-        current = current
-    )
+    comparison = compare_evaluation_runs(previous=previous, current=current)
 
     assert comparison.score_change == 33.33
     assert comparison.token_change == -42
     assert comparison.passed_cases_change == 1
     assert comparison.failed_cases_change == -1
+
+
+def test_find_regressions():
+    previous = EvaluationReport(
+        summary=EvaluationSummary(
+            total_cases=2,
+            passed_cases=2,
+            failed_cases=0,
+            score=100.0,
+        ),
+        total_tokens=500,
+        model="openai/gpt-oss-20b",
+        temperature=0.1,
+        run_at="2026-09-20T12:00:00+00:00",
+        prompt_version="qa-v1",
+        results=[
+            EvaluationResult(
+                case_name="Founded year",
+                passed=True,
+                expected="2018",
+                actual="2018",
+                reason="Expected text was found in the model response",
+            ),
+            EvaluationResult(
+                case_name="Product",
+                passed=True,
+                expected="software",
+                actual="software",
+                reason="Expected text was found in the model response",
+            ),
+        ],
+    )
+
+    current = EvaluationReport(
+        summary=EvaluationSummary(
+            total_cases=2,
+            passed_cases=1,
+            failed_cases=1,
+            score=50.0,
+        ),
+        total_tokens=550,
+        model="openai/gpt-oss-20b",
+        temperature=0.1,
+        run_at="2026-09-20T12:00:00+00:00",
+        prompt_version="qa-v1",
+        results=[
+            EvaluationResult(
+                case_name="Founded year",
+                passed=False,
+                expected="2018",
+                actual="2019",
+                reason="Expected text was not found in the model response",
+            ),
+            EvaluationResult(
+                case_name="Product",
+                passed=True,
+                expected="software",
+                actual="software",
+                reason="Expected text was found in the model response",
+            ),
+        ],
+    )
+
+    regressions = find_regressions(previous=previous, current=current)
+
+    assert len(regressions) == 1
+    assert regressions[0].case_name == "Founded year"
+    assert regressions[0].previous_passed == True
+    assert regressions[0].current_passed == False
+
+
+def test_find_regressions_returns_empty_when_no_regression():
+    previous = EvaluationReport(
+        summary=EvaluationSummary(
+            total_cases=1,
+            passed_cases=1,
+            failed_cases=0,
+            score=100.0,
+        ),
+        total_tokens=500,
+        model="openai/gpt-oss-20b",
+        temperature=0.1,
+        run_at="2026-09-20T12:00:00+00:00",
+        prompt_version="qa-v1",
+        results=[
+            EvaluationResult(
+                case_name="Founded year",
+                passed=True,
+                expected="2018",
+                actual="2018",
+                reason="Expected text was found in the model response",
+            ),
+        ],
+    )
+
+    current = EvaluationReport(
+        summary=EvaluationSummary(
+            total_cases=1,
+            passed_cases=1,
+            failed_cases=0,
+            score=100.0,
+        ),
+        total_tokens=510,
+        model="openai/gpt-oss-20b",
+        temperature=0.1,
+        run_at="2026-09-20T12:00:00+00:00",
+        prompt_version="qa-v1",
+        results=[
+            EvaluationResult(
+                case_name="Founded year",
+                passed=True,
+                expected="2018",
+                actual="2018",
+                reason="Expected text was found in the model response",
+            ),
+        ],
+    )
+
+    regressions = find_regressions(previous=previous, current=current)
+
+    assert regressions == []
