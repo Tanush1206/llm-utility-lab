@@ -49,6 +49,17 @@ The project uses the **Groq API through its OpenAI-compatible interface** and fo
 - Token usage logging
 - Safe logging without exposing prompts, API keys, context, or generated responses
 
+## 🐳 Docker
+
+The project ships with a Dockerfile (Python 3.12 slim, non-root user, health check on `/health`).
+
+```bash
+docker build -t llm-utility-lab .
+docker run -p 8000:8000 --env-file .env llm-utility-lab
+```
+
+The API is then available at http://localhost:8000 and the Swagger docs at http://localhost:8000/docs. The live deployment on Render runs from this same Dockerfile.
+
 ### REST API
 
 - FastAPI-based HTTP API
@@ -751,8 +762,7 @@ Potential future improvements include:
 - Rate limiting
 - Improved CLI experience
 - Automated CI evaluation runs
-- Containerized deployment
-- Production deployment configuration
+- Production hardening: retries with backoff, caching and monitoring
 
 ---
 
